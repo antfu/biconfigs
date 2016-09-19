@@ -24,7 +24,7 @@ def write(path, text):
         return f.write(text)
 
 
-def BiConfigs(path, parser='pretty-json', default_value={}):
+def BiConfigs(path, parser='pretty-json', default_value={}, debug=False):
     loads = PARSERS[parser]['loads']
     dumps = PARSERS[parser]['dumps']
 
@@ -32,6 +32,7 @@ def BiConfigs(path, parser='pretty-json', default_value={}):
         write(path, dumps(default_value))
 
     def onchanged(twc):
+        if debug: print('Writing')
         write(path, dumps(twc))
 
     twc = BiDict(loads(read(path)), onchanged=onchanged)
@@ -54,7 +55,7 @@ class BiDict(dict):
         self._onsubchanged = lambda x: self._onchanged(self)
         super().__init__()
         for k, v in _dict.items():
-            super().__setitem__(k, Bilateralize(v, onchanged))
+            super().__setitem__(k, Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
         super().__delitem__(self, key)
@@ -71,6 +72,9 @@ class BiDict(dict):
         except KeyError:
             raise AttributeError(
                 r"'BiDict' object has no attribute '%s'" % key)
+    def clear(self):
+        super().clear()
+        self._onchanged(self)
 
     def get_set(self, key, default=None):
         if key in self.keys():
@@ -93,7 +97,7 @@ class BiList(list):
         self._onsubchanged = lambda x: self._onchanged(self)
         super().__init__()
         for v in _list:
-            super().append(Bilateralize(v, onchanged))
+            super().append(Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
         super().__delitem__(self, key)
