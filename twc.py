@@ -24,9 +24,12 @@ def write(path, text):
         return f.write(text)
 
 
-def GetTwoWayConfigs(path, parser='pretty-json'):
+def GetTwoWayConfigs(path, parser='pretty-json', default_value={}):
     loads = PARSERS[parser]['loads']
     dumps = PARSERS[parser]['dumps']
+
+    if not os.path.exists(path):
+        write(path, dumps(default_value))
 
     def onchanged(twc):
         write(path, dumps(twc))
