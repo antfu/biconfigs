@@ -1,10 +1,10 @@
-# TwoWayConfigs.py
+# Bilateral-Configs.py
 A file-object two way configures get/set helper
 
 ## Get Started
 ```python
->>> from twc import GetTwoWayConfigs
->>> configs = GetTwoWayConfigs('configs.json')
+>>> from bcfg import BilateralConfigs
+>>> configs = BilateralConfigs('configs.json')
 # This statement will update file "configs.json" as well
 >>> configs['options'] = {'debug': True,
                           'username': 'Anthony',

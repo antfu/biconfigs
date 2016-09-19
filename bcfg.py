@@ -24,7 +24,7 @@ def write(path, text):
         return f.write(text)
 
 
-def GetTwoWayConfigs(path, parser='pretty-json', default_value={}):
+def BilateralConfigs(path, parser='pretty-json', default_value={}):
     loads = PARSERS[parser]['loads']
     dumps = PARSERS[parser]['dumps']
 
@@ -34,34 +34,33 @@ def GetTwoWayConfigs(path, parser='pretty-json', default_value={}):
     def onchanged(twc):
         write(path, dumps(twc))
 
-    twc = TwoWayDict(loads(read(path)), onchanged=onchanged)
+    twc = BilateralDict(loads(read(path)), onchanged=onchanged)
 
     return twc
 
 
-def TwoWaylize(value, onchanged):
-    if isinstance(value, dict) and not isinstance(value, TwoWayDict):
-        return TwoWayDict(value, onchanged)
-    elif isinstance(value, list) and not isinstance(value, TwoWayList):
-        return TwoWayList(value, onchanged)
+def Bilateralize(value, onchanged):
+    if isinstance(value, dict) and not isinstance(value, BilateralDict):
+        return BilateralDict(value, onchanged)
+    elif isinstance(value, list) and not isinstance(value, BilateralList):
+        return BilateralList(value, onchanged)
     return value
 
 
-class TwoWayDict(dict):
+class BilateralDict(dict):
 
     def __init__(self, _dict, onchanged):
         self._onchanged = onchanged
         super().__init__()
-        if _dict:
-            for k, v in _dict.items():
-                self[k] = TwoWaylize(v, onchanged)
+        for k, v in _dict.items():
+            super().__setitem__(k, Bilateralize(v, onchanged))
 
     def __delitem__(self, key):
         super().__delitem__(self, key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
-        value = TwoWaylize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, lambda x: self._onchanged(self))
         super().__setitem__(key, value)
         self._onchanged(self)
 
@@ -70,33 +69,33 @@ class TwoWayDict(dict):
             return self[key]
         except KeyError:
             raise AttributeError(
-                r"'TwoWayDict' object has no attribute '%s'" % key)
+                r"'BilateralDict' object has no attribute '%s'" % key)
 
 
-class TwoWayList(list):
+class BilateralList(list):
 
     def __init__(self, _list, onchanged):
         self._onchanged = onchanged
         super().__init__()
         for v in _list:
-            super().append(TwoWaylize(v, onchanged))
+            super().append(Bilateralize(v, onchanged))
 
     def __delitem__(self, key):
         super().__delitem__(self, key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
-        value = TwoWaylize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, lambda x: self._onchanged(self))
         super().__setitem__(key, value)
         self._onchanged(self)
 
     def append(self, value):
-        value = TwoWaylize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, lambda x: self._onchanged(self))
         super().append(value)
         self._onchanged(self)
 
     def insert(self, i, value):
-        value = TwoWaylize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, lambda x: self._onchanged(self))
         super().insert(i, value)
         self._onchanged(self)
 
