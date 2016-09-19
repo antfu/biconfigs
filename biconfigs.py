@@ -24,7 +24,7 @@ def write(path, text):
         return f.write(text)
 
 
-def BilateralConfigs(path, parser='pretty-json', default_value={}):
+def BiConfigs(path, parser='pretty-json', default_value={}):
     loads = PARSERS[parser]['loads']
     dumps = PARSERS[parser]['dumps']
 
@@ -34,23 +34,24 @@ def BilateralConfigs(path, parser='pretty-json', default_value={}):
     def onchanged(twc):
         write(path, dumps(twc))
 
-    twc = BilateralDict(loads(read(path)), onchanged=onchanged)
+    twc = BiDict(loads(read(path)), onchanged=onchanged)
 
     return twc
 
 
 def Bilateralize(value, onchanged):
-    if isinstance(value, dict) and not isinstance(value, BilateralDict):
-        return BilateralDict(value, onchanged)
-    elif isinstance(value, list) and not isinstance(value, BilateralList):
-        return BilateralList(value, onchanged)
+    if isinstance(value, dict) and not isinstance(value, BiDict):
+        return BiDict(value, onchanged)
+    elif isinstance(value, list) and not isinstance(value, BiList):
+        return BiList(value, onchanged)
     return value
 
 
-class BilateralDict(dict):
+class BiDict(dict):
 
     def __init__(self, _dict, onchanged):
         self._onchanged = onchanged
+        self._onsubchanged = lambda x: self._onchanged(self)
         super().__init__()
         for k, v in _dict.items():
             super().__setitem__(k, Bilateralize(v, onchanged))
@@ -60,7 +61,7 @@ class BilateralDict(dict):
         self._onchanged(self)
 
     def __setitem__(self, key, value):
-        value = Bilateralize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, self._onsubchanged)
         super().__setitem__(key, value)
         self._onchanged(self)
 
@@ -69,7 +70,7 @@ class BilateralDict(dict):
             return self[key]
         except KeyError:
             raise AttributeError(
-                r"'BilateralDict' object has no attribute '%s'" % key)
+                r"'BiDict' object has no attribute '%s'" % key)
 
     def get_set(self, key, default=None):
         if key in self.keys():
@@ -78,18 +79,18 @@ class BilateralDict(dict):
             if isinstance(default, dict) or isinstance(default, list):
                 def _onchanged(x):
                     self[key] = x
-                    self._onchanged(self)
-                    x._onchanged = lambda x: self._onchanged(self)
+                    x._onchanged = self._onsubchanged
                 return Bilateralize(default, _onchanged)
             else:
                 self[key] = default
                 return self[key]
 
 
-class BilateralList(list):
+class BiList(list):
 
     def __init__(self, _list, onchanged):
         self._onchanged = onchanged
+        self._onsubchanged = lambda x: self._onchanged(self)
         super().__init__()
         for v in _list:
             super().append(Bilateralize(v, onchanged))
@@ -99,17 +100,17 @@ class BilateralList(list):
         self._onchanged(self)
 
     def __setitem__(self, key, value):
-        value = Bilateralize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, self._onsubchanged)
         super().__setitem__(key, value)
         self._onchanged(self)
 
     def append(self, value):
-        value = Bilateralize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, self._onsubchanged)
         super().append(value)
         self._onchanged(self)
 
     def insert(self, i, value):
-        value = Bilateralize(value, lambda x: self._onchanged(self))
+        value = Bilateralize(value, self._onsubchanged)
         super().insert(i, value)
         self._onchanged(self)
 

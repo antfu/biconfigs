@@ -1,10 +1,10 @@
-# Bilateral-Configs.py
+# BiConfigs
 A file-object two way configures get/set helper
 
 ## Get Started
 ```python
->>> from bcfg import BilateralConfigs
->>> configs = BilateralConfigs('configs.json')
+>>> from biconfigs import BiConfigs
+>>> configs = BiConfigs('configs.json')
 # This statement will update file "configs.json" as well
 >>> configs['options'] = {'debug': True,
                           'username': 'Anthony',
