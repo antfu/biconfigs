@@ -71,6 +71,20 @@ class BilateralDict(dict):
             raise AttributeError(
                 r"'BilateralDict' object has no attribute '%s'" % key)
 
+    def get_set(self, key, default=None):
+        if key in self.keys():
+            return self[key]
+        else:
+            if isinstance(default, dict) or isinstance(default, list):
+                def _onchanged(x):
+                    self[key] = x
+                    self._onchanged(self)
+                    x._onchanged = lambda x: self._onchanged(self)
+                return Bilateralize(default, _onchanged)
+            else:
+                self[key] = default
+                return self[key]
+
 
 class BilateralList(list):
 
