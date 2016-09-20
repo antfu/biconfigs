@@ -1,3 +1,3 @@
 __version__ = '0.0.3'
 
-from .biconfigs import BiConfigs
+from .biconfigs import BiConfigs, BiDict, BiList
