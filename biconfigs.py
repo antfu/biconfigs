@@ -1,6 +1,28 @@
 import os
 import json
+import random
+import string
 from codecs import open
+
+__randstr_chars = string.ascii_letters + string.digits
+__memory_storage = {}
+
+
+def randstr(length=10):
+    return ''.join(random.sample(__randstr_chars, length))
+
+
+def file_read(path):
+    with open(path, 'r', 'utf-8') as f:
+        return f.read()
+
+
+def file_write(path, text):
+    with open(path, 'w', 'utf-8') as f:
+        return f.write(text)
+
+def memory_write(key, data):
+     __memory_storage[key] = data
 
 PARSERS = {
     'json': {
@@ -10,29 +32,50 @@ PARSERS = {
     'pretty-json': {
         'loads': json.loads,
         'dumps': lambda dict: json.dumps(dict, indent=2, sort_keys=True)
+    },
+    'none': {
+        'loads': lambda x: x,
+        'dumps': lambda y: y
+    }
+}
+
+STORAGES = {
+    'file': {
+        'read': file_read,
+        'write': file_write
+    },
+    'memory': {
+        'read': lambda x: __memory_storage[x],
+        'write': memory_write
     }
 }
 
 
-def read(path):
-    with open(path, 'r', 'utf-8') as f:
-        return f.read()
+def BiConfigs(path=None, parser=None, default_value={}, storage=None, debug=False):
+    storage = storage or 'file'
+    parser = parser or 'pretty-json'
 
+    if not path or path == '::memory::':
+        parser = 'none'
+        storage = 'memory'
+        path = randstr(20)
+        if debug:
+            print('Using memory as storage')
 
-def write(path, text):
-    with open(path, 'w', 'utf-8') as f:
-        return f.write(text)
-
-
-def BiConfigs(path, parser='pretty-json', default_value={}, debug=False):
     loads = PARSERS[parser]['loads']
     dumps = PARSERS[parser]['dumps']
+    read = STORAGES[storage]['read']
+    write = STORAGES[storage]['write']
 
-    if not os.path.exists(path):
+    if storage == 'file' and not os.path.exists(path):
         write(path, dumps(default_value))
 
+    if storage == 'memory':
+        write(path, default_value)
+
     def onchanged(twc):
-        if debug: print('Writing')
+        if debug:
+            print('Changed')
         write(path, dumps(twc))
 
     twc = BiDict(loads(read(path)), onchanged=onchanged)
@@ -72,6 +115,7 @@ class BiDict(dict):
         except KeyError:
             raise AttributeError(
                 r"'BiDict' object has no attribute '%s'" % key)
+
     def clear(self):
         super().clear()
         self._onchanged(self)
