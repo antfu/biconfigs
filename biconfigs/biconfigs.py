@@ -4,6 +4,7 @@ import random
 import string
 from codecs import open
 
+__version__ = '0.0.1'
 __randstr_chars = string.ascii_letters + string.digits
 __memory_storage = {}
 

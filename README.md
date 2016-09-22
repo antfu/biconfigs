@@ -1,6 +1,14 @@
 # BiConfigs
 A file-object two way configures get/set helper
 
+## Install
+```sh
+pip install git+https://github.com/antfu/biconfigs.git
+```
+
+## Dependencies
+Not dependencies required.
+
 ## Get Started
 ```python
 >>> from biconfigs import BiConfigs
