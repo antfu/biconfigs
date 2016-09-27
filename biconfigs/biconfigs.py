@@ -96,17 +96,17 @@ class BiDict(dict):
     def __init__(self, _dict, onchanged=None):
         self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
-        super().__init__()
+        super(BiDict, self).__init__()
         for k, v in _dict.items():
-            super().__setitem__(k, Bilateralize(v, self._onsubchanged))
+            super(BiDict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
-        super().__delitem__(self, key)
+        super(BiDict, self).__delitem__(self, key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
         value = Bilateralize(value, self._onsubchanged)
-        super().__setitem__(key, value)
+        super(BiDict, self).__setitem__(key, value)
         self._onchanged(self)
 
     def __getattr__(self, key):
@@ -117,7 +117,7 @@ class BiDict(dict):
                 r"'BiDict' object has no attribute '%s'" % key)
 
     def clear(self):
-        super().clear()
+        super(BiDict, self).clear()
         self._onchanged(self)
 
     def get_set(self, key, default=None):
@@ -139,41 +139,41 @@ class BiList(list):
     def __init__(self, _list, onchanged=None):
         self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
-        super().__init__()
+        super(BiList, self).__init__()
         for v in _list:
-            super().append(Bilateralize(v, self._onsubchanged))
+            super(BiList, self).append(Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
-        super().__delitem__(self, key)
+        super(BiList, self).__delitem__(self, key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
         value = Bilateralize(value, self._onsubchanged)
-        super().__setitem__(key, value)
+        super(BiList, self).__setitem__(key, value)
         self._onchanged(self)
 
     def append(self, value):
         value = Bilateralize(value, self._onsubchanged)
-        super().append(value)
+        super(BiList, self).append(value)
         self._onchanged(self)
 
     def insert(self, i, value):
         value = Bilateralize(value, self._onsubchanged)
-        super().insert(i, value)
+        super(BiList, self).insert(i, value)
         self._onchanged(self)
 
     def clear(self):
-        super().clear()
+        super(BiList, self).clear()
         self._onchanged(self)
 
     def remove(self, i):
-        super().clear(i)
+        super(BiList, self).clear(i)
         self._onchanged(self)
 
     def pop(self):
-        super().pop(i)
+        super(BiList, self).pop(i)
         self._onchanged(self)
 
     def reverse(self):
-        super().reverse(i)
+        super(BiList, self).reverse(i)
         self._onchanged(self)
