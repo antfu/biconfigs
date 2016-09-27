@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import json
 import random
@@ -12,11 +13,9 @@ __memory_storage = {}
 def randstr(length=10):
     return ''.join(random.sample(__randstr_chars, length))
 
-
 def file_read(path):
     with open(path, 'r', 'utf-8') as f:
         return f.read()
-
 
 def file_write(path, text):
     with open(path, 'w', 'utf-8') as f:
