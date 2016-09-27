@@ -51,7 +51,7 @@ STORAGES = {
 }
 
 
-def BiConfigs(path=None, parser=None, default_value={}, storage=None, debug=False):
+def BiConfigs(path=None, parser=None, default_value={}, storage=None, onchanged=None, debug=False):
     storage = storage or 'file'
     parser = parser or 'pretty-json'
 
@@ -59,8 +59,8 @@ def BiConfigs(path=None, parser=None, default_value={}, storage=None, debug=Fals
         parser = 'none'
         storage = 'memory'
         path = randstr(20)
-        if debug:
-            print('Using memory as storage')
+        #if debug:
+        #    print('Using memory as storage')
 
     loads = PARSERS[parser]['loads']
     dumps = PARSERS[parser]['dumps']
@@ -73,12 +73,12 @@ def BiConfigs(path=None, parser=None, default_value={}, storage=None, debug=Fals
     if storage == 'memory':
         write(path, default_value)
 
-    def onchanged(twc):
-        if debug:
-            print('Changed')
+    def _onchanged(twc):
+        if onchanged:
+            onchanged(twc)
         write(path, dumps(twc))
 
-    twc = BiDict(loads(read(path)), onchanged=onchanged)
+    twc = BiDict(loads(read(path)), onchanged=_onchanged)
 
     return twc
 
@@ -101,7 +101,7 @@ class BiDict(dict):
             super(BiDict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
-        super(BiDict, self).__delitem__(self, key)
+        super(BiDict, self).__delitem__(key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
@@ -128,7 +128,9 @@ class BiDict(dict):
                 def _onchanged(x):
                     self[key] = x
                     x._onchanged = self._onsubchanged
-                return Bilateralize(default, _onchanged)
+                value = Bilateralize(default, _onchanged)
+                self.setdefault(key, value)
+                return value
             else:
                 self[key] = default
                 return self[key]
@@ -144,7 +146,7 @@ class BiList(list):
             super(BiList, self).append(Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
-        super(BiList, self).__delitem__(self, key)
+        super(BiList, self).__delitem__(key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
@@ -167,13 +169,13 @@ class BiList(list):
         self._onchanged(self)
 
     def remove(self, i):
-        super(BiList, self).clear(i)
+        super(BiList, self).remove(i)
         self._onchanged(self)
 
     def pop(self):
-        super(BiList, self).pop(i)
+        super(BiList, self).pop()
         self._onchanged(self)
 
     def reverse(self):
-        super(BiList, self).reverse(i)
+        super(BiList, self).reverse()
         self._onchanged(self)

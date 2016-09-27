@@ -19,6 +19,12 @@ def test_dict():
     with pytest.raises(AttributeError) as exinfo:
         d.item_not_exists
 
+    d['itemtodel'] = 'value'
+    assert d['itemtodel'] == 'value'
+    del(d['itemtodel'])
+    with pytest.raises(KeyError) as exinfo:
+        d['itemtodel']
+
 def test_nested():
     d = biconfigs.BiDict({'nested_dict': {
                             'key1': 'value1',
