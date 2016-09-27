@@ -50,39 +50,6 @@ STORAGES = {
     }
 }
 
-
-def BiConfigs(path=None, parser=None, default_value={}, storage=None, onchanged=None, debug=False):
-    storage = storage or 'file'
-    parser = parser or 'pretty-json'
-
-    if not path or path == '::memory::':
-        parser = 'none'
-        storage = 'memory'
-        path = randstr(20)
-        #if debug:
-        #    print('Using memory as storage')
-
-    loads = PARSERS[parser]['loads']
-    dumps = PARSERS[parser]['dumps']
-    read = STORAGES[storage]['read']
-    write = STORAGES[storage]['write']
-
-    if storage == 'file' and not os.path.exists(path):
-        write(path, dumps(default_value))
-
-    if storage == 'memory':
-        write(path, default_value)
-
-    def _onchanged(twc):
-        if onchanged:
-            onchanged(twc)
-        write(path, dumps(twc))
-
-    twc = BiDict(loads(read(path)), onchanged=_onchanged)
-
-    return twc
-
-
 def Bilateralize(value, onchanged):
     if isinstance(value, dict) and not isinstance(value, BiDict):
         return BiDict(value, onchanged)
@@ -165,8 +132,7 @@ class BiList(list):
         self._onchanged(self)
 
     def clear(self):
-        super(BiList, self).clear()
-        self._onchanged(self)
+        self[:] = []
 
     def remove(self, i):
         super(BiList, self).remove(i)
@@ -179,3 +145,35 @@ class BiList(list):
     def reverse(self):
         super(BiList, self).reverse()
         self._onchanged(self)
+
+
+class BiConfigs(BiDict):
+    def __init__(self, path=None, parser=None, default_value={}, storage=None, onchanged=None, debug=False):
+        self.storage = storage or 'file'
+        self.parser = parser or 'pretty-json'
+        self.path = path
+        self.onchanged = onchanged or (lambda x: None)
+
+        if not path or path == '::memory::':
+            self.parser = 'none'
+            self.storage = 'memory'
+            self.path = randstr(20)
+
+        self.loads = PARSERS[self.parser]['loads']
+        self.dumps = PARSERS[self.parser]['dumps']
+        self.read = STORAGES[self.storage]['read']
+        self.write = STORAGES[self.storage]['write']
+
+        if self.storage == 'file' and not os.path.exists(self.path):
+            self.write(self.path, self.dumps(default_value))
+
+        if self.storage == 'memory':
+            self.write(self.path, default_value)
+
+        super(BiConfigs,self).__init__(self.loads(self.read(self.path)),
+                                       onchanged=self._biconfig_onchanged)
+
+    def _biconfig_onchanged(self, obj):
+        if self.onchanged:
+            self.onchanged(obj)
+        self.write(self.path, self.dumps(obj))

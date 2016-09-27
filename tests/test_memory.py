@@ -13,6 +13,7 @@ class TestMemoryStorage(object):
             default_value={'default':'value'},
             onchanged=onchanged
         )
+        assert cls.config.storage == 'memory'
         assert cls.change_count == 0
         assert json.dumps(cls.config) == '{"default": "value"}'
 

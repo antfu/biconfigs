@@ -20,6 +20,7 @@ class TestFileUpdate(object):
         # Create a BiConfigs instance,
         # set parser='json' to disable json beautify
         cls.config = biconfigs.BiConfigs(path=FILENAME, default_value={'default':'value'}, parser='json')
+        assert cls.config.storage == 'file'
         assert os.path.exists(FILENAME)
         assert readfile() == '{"default": "value"}'
 

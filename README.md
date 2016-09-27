@@ -16,7 +16,7 @@ Not dependencies required.
 ```python
 >>> from biconfigs import BiConfigs
 >>> configs = BiConfigs('configs.json')
-# This statement will update file "configs.json" as well
+# Simply change the dict will update file "configs.json" automatically
 >>> configs['options'] = {'debug': True,
                           'username': 'Anthony',
                           'list': [] }
@@ -36,3 +36,6 @@ Not dependencies required.
   }
 }
 ```
+
+## License
+MIT
