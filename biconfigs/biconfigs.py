@@ -132,7 +132,7 @@ class BiList(list):
         self._onchanged(self)
 
     def clear(self):
-        self[:] = []
+        del(self[:])
 
     def remove(self, i):
         super(BiList, self).remove(i)

@@ -1,6 +1,7 @@
 # BiConfigs
 [![Build Status](https://img.shields.io/travis/antfu/biconfigs.svg)](https://travis-ci.org/antfu/biconfigs)
 [![Coverage](https://img.shields.io/codecov/c/github/antfu/biconfigs.svg)](https://codecov.io/gh/antfu/biconfigs)
+[![License](https://img.shields.io/github/license/antfu/biconfigs.svg)](https://github.com/antfu/biconfigs/blob/master/LICENSE)
 
 A file-object two way configures get/set helper
 
