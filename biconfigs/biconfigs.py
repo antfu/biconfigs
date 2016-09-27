@@ -93,8 +93,8 @@ def Bilateralize(value, onchanged):
 
 class BiDict(dict):
 
-    def __init__(self, _dict, onchanged):
-        self._onchanged = onchanged
+    def __init__(self, _dict, onchanged=None):
+        self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
         super().__init__()
         for k, v in _dict.items():
@@ -136,8 +136,8 @@ class BiDict(dict):
 
 class BiList(list):
 
-    def __init__(self, _list, onchanged):
-        self._onchanged = onchanged
+    def __init__(self, _list, onchanged=None):
+        self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
         super().__init__()
         for v in _list:
