@@ -1,23 +1,16 @@
-# BiConfigs
+# Biconfigs
 [![Build Status](https://img.shields.io/travis/antfu/biconfigs.svg)](https://travis-ci.org/antfu/biconfigs)
 [![Coverage](https://img.shields.io/codecov/c/github/antfu/biconfigs.svg)](https://codecov.io/gh/antfu/biconfigs)
 [![License](https://img.shields.io/github/license/antfu/biconfigs.svg)](https://github.com/antfu/biconfigs/blob/master/LICENSE)
 
-A file-object two way configures get/set helper
-
-## Install
-```sh
-pip install git+https://github.com/antfu/biconfigs.git
-```
-
-## Dependencies
-Not dependencies required.
+📜↔🛠 A file-object two way configures get/set helper
 
 ## Get Started
 ```python
->>> from biconfigs import BiConfigs
->>> configs = BiConfigs('configs.json')
-# Simply change the dict will update file "configs.json" automatically
+>>> from biconfigs import Biconfigs
+>>> configs = Biconfigs('configs.json')
+
+# Simply change the dict, and it will automatically save the changes to file.
 >>> configs['options'] = {'debug': True,
                           'username': 'Anthony',
                           'list': [] }
@@ -38,6 +31,14 @@ Not dependencies required.
   }
 }
 ```
+
+## Install
+```sh
+pip install git+https://github.com/antfu/biconfigs.git
+```
+
+## Dependencies
+Not dependencies required.
 
 ## License
 MIT

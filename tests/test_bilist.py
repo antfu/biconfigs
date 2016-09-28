@@ -10,7 +10,7 @@ def test_list():
         change_count += 1
 
     orginal_list = ['orginal_vale', 2]
-    l = biconfigs.BiList(orginal_list, onchanged=onchanged)
+    l = biconfigs.Bilist(orginal_list, onchanged=onchanged)
 
     assert len(orginal_list) == len(l)
 
@@ -39,10 +39,10 @@ def test_nested():
     nested_dict1 = {'key1':'value1'}
     nested_list1 = ['nested_list', 2, 3]
     orginal_list = [nested_dict1, nested_list1]
-    l = biconfigs.BiList(orginal_list)
+    l = biconfigs.Bilist(orginal_list)
 
-    assert isinstance(l[0], biconfigs.BiDict)
-    assert isinstance(l[1], biconfigs.BiList)
+    assert isinstance(l[0], biconfigs.Bidict)
+    assert isinstance(l[1], biconfigs.Bilist)
 
     for k in nested_dict1.keys():
         assert l[0][k] == nested_dict1[k]
@@ -53,5 +53,5 @@ def test_nested():
     l.clear()
     l.append([])
     l.append({})
-    assert isinstance(l[0], biconfigs.BiList)
-    assert isinstance(l[1], biconfigs.BiDict)
+    assert isinstance(l[0], biconfigs.Bilist)
+    assert isinstance(l[1], biconfigs.Bidict)

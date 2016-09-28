@@ -52,29 +52,29 @@ STORAGES = {
 }
 
 def Bilateralize(value, onchanged):
-    if isinstance(value, dict) and not isinstance(value, BiDict):
-        return BiDict(value, onchanged)
-    elif isinstance(value, list) and not isinstance(value, BiList):
-        return BiList(value, onchanged)
+    if isinstance(value, dict) and not isinstance(value, Bidict):
+        return Bidict(value, onchanged)
+    elif isinstance(value, list) and not isinstance(value, Bilist):
+        return Bilist(value, onchanged)
     return value
 
 
-class BiDict(dict):
+class Bidict(dict):
 
     def __init__(self, _dict, onchanged=None):
         self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
-        super(BiDict, self).__init__()
+        super(Bidict, self).__init__()
         for k, v in _dict.items():
-            super(BiDict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
+            super(Bidict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
-        super(BiDict, self).__delitem__(key)
+        super(Bidict, self).__delitem__(key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
         value = Bilateralize(value, self._onsubchanged)
-        super(BiDict, self).__setitem__(key, value)
+        super(Bidict, self).__setitem__(key, value)
         self._onchanged(self)
 
     def __getattr__(self, key):
@@ -82,10 +82,10 @@ class BiDict(dict):
             return self[key]
         except KeyError:
             raise AttributeError(
-                r"'BiDict' object has no attribute '%s'" % key)
+                r"'Bidict' object has no attribute '%s'" % key)
 
     def clear(self):
-        super(BiDict, self).clear()
+        super(Bidict, self).clear()
         self._onchanged(self)
 
     def get_set(self, key, default=None):
@@ -104,52 +104,52 @@ class BiDict(dict):
                 return self[key]
 
 
-class BiList(list):
+class Bilist(list):
 
     def __init__(self, _list, onchanged=None):
         self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
-        super(BiList, self).__init__()
+        super(Bilist, self).__init__()
         for v in _list:
-            super(BiList, self).append(Bilateralize(v, self._onsubchanged))
+            super(Bilist, self).append(Bilateralize(v, self._onsubchanged))
 
     def __delitem__(self, key):
-        super(BiList, self).__delitem__(key)
+        super(Bilist, self).__delitem__(key)
         self._onchanged(self)
 
     def __setitem__(self, key, value):
         value = Bilateralize(value, self._onsubchanged)
-        super(BiList, self).__setitem__(key, value)
+        super(Bilist, self).__setitem__(key, value)
         self._onchanged(self)
 
     def append(self, value):
         value = Bilateralize(value, self._onsubchanged)
-        super(BiList, self).append(value)
+        super(Bilist, self).append(value)
         self._onchanged(self)
 
     def insert(self, i, value):
         value = Bilateralize(value, self._onsubchanged)
-        super(BiList, self).insert(i, value)
+        super(Bilist, self).insert(i, value)
         self._onchanged(self)
 
     def clear(self):
-        super(BiList, self).__delitem__(slice(None, None, None))
+        super(Bilist, self).__delitem__(slice(None, None, None))
         self._onchanged(self)
 
     def remove(self, i):
-        super(BiList, self).remove(i)
+        super(Bilist, self).remove(i)
         self._onchanged(self)
 
     def pop(self):
-        super(BiList, self).pop()
+        super(Bilist, self).pop()
         self._onchanged(self)
 
     def reverse(self):
-        super(BiList, self).reverse()
+        super(Bilist, self).reverse()
         self._onchanged(self)
 
 
-class BiConfigs(BiDict):
+class Biconfigs(Bidict):
     def __init__(self,
                 path=None,
                 default_value={},
@@ -157,7 +157,7 @@ class BiConfigs(BiDict):
                 storage=None,
                 onchanged=None,
                 before_save=None):
-        '''Constructs a <BiConfigs> instance
+        '''Constructs a <Biconfigs> instance
 
         :param path: The path to linked file
         :param parser: The parser name in 'PARSERS' to dumps/loads data with file
@@ -202,7 +202,7 @@ class BiConfigs(BiDict):
         if self.storage == 'memory':
             self.write(self.path, self.dumps(default_value))
 
-        super(BiConfigs,self).__init__(self.loads(self.read(self.path)),
+        super(Biconfigs,self).__init__(self.loads(self.read(self.path)),
                                        onchanged=self._biconfig_onchanged)
 
     def _biconfig_onchanged(self, obj):

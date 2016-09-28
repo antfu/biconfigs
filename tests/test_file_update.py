@@ -17,9 +17,9 @@ class TestFileUpdate(object):
     def setup_class(cls):
         if os.path.exists(FILENAME):
             os.remove(FILENAME)
-        # Create a BiConfigs instance,
+        # Create a Biconfigs instance,
         # set parser='json' to disable json beautify
-        cls.config = biconfigs.BiConfigs(path=FILENAME, default_value={'default':'value'}, parser='json')
+        cls.config = biconfigs.Biconfigs(path=FILENAME, default_value={'default':'value'}, parser='json')
         assert cls.config.storage == 'file'
         assert os.path.exists(FILENAME)
         assert readfile() == '{"default": "value"}'
@@ -59,7 +59,7 @@ class TestFileUpdate(object):
         # should return the previous value when get_set at the 2nd time
         assert self.config.get_set('item', None) == get_set_dict
         assert readfile() == '{}'
-        assert isinstance(get_set_dict, biconfigs.BiDict)
+        assert isinstance(get_set_dict, biconfigs.Bidict)
 
         # nested dict changed, update the file
         get_set_dict['nested'] = 1

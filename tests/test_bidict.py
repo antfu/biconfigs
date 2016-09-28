@@ -2,7 +2,7 @@ import pytest
 import biconfigs
 
 def test_dict():
-    d = biconfigs.BiDict({'orginal_key': 'orginal_value'})
+    d = biconfigs.Bidict({'orginal_key': 'orginal_value'})
 
     assert d['orginal_key'] == 'orginal_value'
     assert d.orginal_key == 'orginal_value'
@@ -26,7 +26,7 @@ def test_dict():
         d['itemtodel']
 
 def test_nested():
-    d = biconfigs.BiDict({'nested_dict': {
+    d = biconfigs.Bidict({'nested_dict': {
                             'key1': 'value1',
                             'key2': 2
                          },
@@ -35,8 +35,8 @@ def test_nested():
                             2
                          ]})
 
-    assert isinstance(d.nested_dict, biconfigs.BiDict)
-    assert isinstance(d.nested_list, biconfigs.BiList)
+    assert isinstance(d.nested_dict, biconfigs.Bidict)
+    assert isinstance(d.nested_list, biconfigs.Bilist)
 
     assert d.nested_dict.key1 == 'value1'
     assert d.nested_list[1] == 2
@@ -44,5 +44,5 @@ def test_nested():
     d['new_nested_dict'] = {}
     d['new_nested_list'] = []
 
-    assert isinstance(d.new_nested_dict, biconfigs.BiDict)
-    assert isinstance(d.new_nested_list, biconfigs.BiList)
+    assert isinstance(d.new_nested_dict, biconfigs.Bidict)
+    assert isinstance(d.new_nested_list, biconfigs.Bilist)

@@ -8,7 +8,7 @@ class TestMemoryStorage(object):
         def onchanged(config):
             cls.change_count += 1
 
-        cls.config = biconfigs.BiConfigs(
+        cls.config = biconfigs.Biconfigs(
             default_value={'default':'value'},
             onchanged=onchanged
         )

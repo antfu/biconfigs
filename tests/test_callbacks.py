@@ -10,7 +10,7 @@ def test_callbacks():
         if config.get('abort_save', False):
             return False
 
-    config = biconfigs.BiConfigs(
+    config = biconfigs.Biconfigs(
         before_save=before_save,
         parser='json'
     )

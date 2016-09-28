@@ -1,7 +1,7 @@
-from biconfigs import BiConfigs
+from biconfigs import Biconfigs
 
 def test_demo():
-    configs = BiConfigs('configs.json')
+    configs = Biconfigs('configs.json')
     configs['options'] = {'debug': True,
                           'username': 'Anthony',
                           'list': [] }
