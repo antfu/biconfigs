@@ -58,7 +58,6 @@ def Bilateralize(value, onchanged):
         return Bilist(value, onchanged)
     return value
 
-
 class Bidict(dict):
 
     def __init__(self, _dict, onchanged=None):

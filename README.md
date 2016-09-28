@@ -2,6 +2,8 @@
 [![Build Status](https://img.shields.io/travis/antfu/biconfigs.svg?style=flat-square)](https://travis-ci.org/antfu/biconfigs)
 [![Coverage](https://img.shields.io/codecov/c/github/antfu/biconfigs.svg?style=flat-square)](https://codecov.io/gh/antfu/biconfigs)
 [![License](https://img.shields.io/github/license/antfu/biconfigs.svg?style=flat-square)](https://github.com/antfu/biconfigs/blob/master/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
+[![Python Version](https://img.shields.io/pypi/pyversions/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
 
 📄⇄🛠 Two way configurations mapping helper for Python.
 
@@ -18,7 +20,7 @@ configs['options'] = {'debug': True,
 # Access with simple 'x.y.z' style
 configs.options.list.append('example')
 ```
-`configs.json`:
+Content of file `configs.json` after execution:
 ```json
 {
   "options": {
@@ -33,15 +35,17 @@ configs.options.list.append('example')
 
 ## Install
 ```sh
-pip install git+https://github.com/antfu/biconfigs.git
+pip install biconfigs
 ```
 
 ## Dependencies
-**No dependencies** required.<br>
+**No dependencies** required 🎉
+
 Tested on Python `2.6`, `2.7`, `3.3`, `3.4`, `3.5`, `pypy`, `pypy3`
 
 ## Documentation
-### High frequency update
+
+#### High frequency update
 Normally, Biconfigs will write the changes to file immediately. But sometime you
 may want to update values frequently, which will result in a IO bottleneck. So you
 can use **`with`** statement to prevent auto saving for a while.
@@ -52,9 +56,10 @@ with configs:
 # This statement will execute saving process only one time when exiting "with" scope
 ```
 
-### When to save
-**Save when:** Item creations, item deleting, list reordering, value changed, `get_set`.<br>
-**NOT saving when:** Item accessions, assignment but not changed.
+#### When to save
+**Save when:** Item create, item delete, list reorder, value change, `get_set`, etc.
+
+**NOT sav ing when:** Item access, assignment but not changed, etc.
 
 ```python
 # All the following single statement will cause saving
@@ -72,8 +77,9 @@ configs['item'] = 'value' # The value of 'item' is not changed
 value3 = configs.get('item_not_exists', 'default_value')
 ```
 
-### Get or set
+#### Get or set
 Biconfigs provides a special function `get_set` for dict.
+
 `get_set` acts just like `dict.get(key, default)` but it will save the default value to dict if the key is not exists.
 
 ## License
