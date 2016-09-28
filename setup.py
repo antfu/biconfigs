@@ -1,7 +1,6 @@
 import os
 from codecs import open
 from setuptools import setup
-from pypandoc import convert
 
 def read(fname):
     try:
@@ -9,6 +8,11 @@ def read(fname):
             return f.read()
     except IOError:
         return ""
+
+try:
+    from pypandoc import convert
+except ImportError:
+    convert = lambda fname, to: read(fname)
 
 version=read(os.path.join('biconfigs','__version__.py')).strip().split('=')[-1].strip("' ")
 
