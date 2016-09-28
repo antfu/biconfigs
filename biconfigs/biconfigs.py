@@ -4,8 +4,9 @@ import json
 import random
 import string
 from codecs import open
+from .exceptions import *
 
-__version__ = '0.0.1'
+
 __randstr_chars = string.ascii_letters + string.digits
 __memory_storage = {}
 
@@ -148,16 +149,46 @@ class BiList(list):
 
 
 class BiConfigs(BiDict):
-    def __init__(self, path=None, parser=None, default_value={}, storage=None, onchanged=None, debug=False):
-        self.storage = storage or 'file'
-        self.parser = parser or 'pretty-json'
+    def __init__(self,
+                default_value={},
+                path=None,
+                parser=None,
+                storage=None,
+                onchanged=None,
+                before_save=None):
+        '''Constructs a <BiConfigs> instance
+
+        :param path: The path to linked file
+        :param parser: The parser name in 'PARSERS' to dumps/loads data with file
+        :param default_value: Default value
+        :type default_value: dict
+        :param storage: The storage name in 'STORAGES' to decide the method
+            read/write. Default set as 'memory'.
+        :param before_save: A function pass by user. Being fired before saving
+            the file. Retrun False will abort the saving.
+        :param onchanged: A function pass by user. Being fired once the
+            config changed.
+        '''
+
         self.path = path
         self.onchanged = onchanged or (lambda x: None)
+        self.before_save = before_save or (lambda x: None)
+        self.pending_changes = False
+        self._binded = True
 
-        if not path or path == '::memory::':
-            self.parser = 'none'
-            self.storage = 'memory'
-            self.path = randstr(20)
+        if path:
+            parser = parser or 'pretty-json'
+            storage = storage or 'file'
+        else:
+            path = randstr(20)
+
+        self.storage = storage or 'memory'
+        self.parser = parser or 'none'
+
+        if not self.parser in PARSERS.keys():
+            raise InvalidPaserError
+        if not self.storage in STORAGES.keys():
+            raise InvalidStorageError
 
         self.loads = PARSERS[self.parser]['loads']
         self.dumps = PARSERS[self.parser]['dumps']
@@ -168,12 +199,28 @@ class BiConfigs(BiDict):
             self.write(self.path, self.dumps(default_value))
 
         if self.storage == 'memory':
-            self.write(self.path, default_value)
+            self.write(self.path, self.dumps(default_value))
 
         super(BiConfigs,self).__init__(self.loads(self.read(self.path)),
                                        onchanged=self._biconfig_onchanged)
 
     def _biconfig_onchanged(self, obj):
-        if self.onchanged:
-            self.onchanged(obj)
+        if not self._binded:
+            return
+        self.pending_changes = True
+        self.onchanged(self)
+        if self.before_save(self) == False:
+            return
         self.write(self.path, self.dumps(obj))
+        self.pending_changes = False
+
+    def _unbind(self):
+        self._binded = False
+
+    def _rebind(self):
+        self._binded = True
+        self._biconfig_onchanged(self)
+
+    def release(self):
+        self._unbind()
+        del(self)

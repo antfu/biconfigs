@@ -24,6 +24,11 @@ class TestFileUpdate(object):
         assert os.path.exists(FILENAME)
         assert readfile() == '{"default": "value"}'
 
+    def teardown_class(cls):
+        cls.config.release()
+        if os.path.exists(FILENAME):
+            os.remove(FILENAME)
+
     def test_basic_update(self):
         self.config.clear()
         assert readfile() == '{}'

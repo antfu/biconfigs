@@ -9,7 +9,6 @@ class TestMemoryStorage(object):
             cls.change_count += 1
 
         cls.config = biconfigs.BiConfigs(
-            path='::memory::',
             default_value={'default':'value'},
             onchanged=onchanged
         )
