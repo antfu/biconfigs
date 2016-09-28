@@ -133,7 +133,8 @@ class BiList(list):
         self._onchanged(self)
 
     def clear(self):
-        del(self[:])
+        super(BiList, self).__delitem__(slice(None, None, None))
+        self._onchanged(self)
 
     def remove(self, i):
         super(BiList, self).remove(i)
