@@ -35,6 +35,28 @@ def test_list():
 
     assert len(l) == 0
 
+changed_count = 0
+def test_with():
+    global changed_count
+    changed_count = 0
+    def onchanged(obj):
+        global changed_count
+        changed_count += 1
+
+    l = biconfigs.Bilist([1, 2], onchanged=onchanged)
+
+    assert changed_count == 0
+
+    l.append(3)
+    l.append(4)
+    assert changed_count == 2
+
+    with l:
+        for i in range(5,10):
+            l.append(i)
+
+    assert changed_count == 3
+
 def test_nested():
     nested_dict1 = {'key1':'value1'}
     nested_list1 = ['nested_list', 2, 3]

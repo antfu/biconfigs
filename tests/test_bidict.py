@@ -25,6 +25,30 @@ def test_dict():
     with pytest.raises(KeyError) as exinfo:
         d['itemtodel']
 
+changed_count = 0
+def test_with():
+    global changed_count
+    changed_count = 0
+    def onchanged(obj):
+        global changed_count
+        changed_count += 1
+
+    d = biconfigs.Bidict({'orginal_key': 'orginal_value'}, onchanged=onchanged)
+
+    assert changed_count == 0
+
+    d['key1'] = 'value1'
+    d['key2'] = 'value2'
+    assert changed_count == 2
+
+    with d:
+        d['key3'] = 'value3'
+        d['key4'] = 'value3'
+        d['key5'] = 'value5'
+
+    assert changed_count == 3
+
+
 def test_nested():
     d = biconfigs.Bidict({'nested_dict': {
                             'key1': 'value1',

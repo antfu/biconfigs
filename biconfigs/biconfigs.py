@@ -77,6 +77,16 @@ class Bidict(dict):
         super(Bidict, self).__setitem__(key, value)
         self._onchanged(self)
 
+    def __enter__(self):
+        self._onchanged_back = self._onchanged
+        self._onchanged = lambda x: None
+        return self
+
+    def __exit__(self, *args):
+        self._onchanged = self._onchanged_back
+        del(self._onchanged_back)
+        self._onchanged(self)
+
     def __getattr__(self, key):
         try:
             return self[key]
@@ -120,6 +130,16 @@ class Bilist(list):
     def __setitem__(self, key, value):
         value = Bilateralize(value, self._onsubchanged)
         super(Bilist, self).__setitem__(key, value)
+        self._onchanged(self)
+
+    def __enter__(self):
+        self._onchanged_back = self._onchanged
+        self._onchanged = lambda x: None
+        return self
+
+    def __exit__(self, *args):
+        self._onchanged = self._onchanged_back
+        del(self._onchanged_back)
         self._onchanged(self)
 
     def append(self, value):
