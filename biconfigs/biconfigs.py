@@ -64,9 +64,22 @@ class Bidict(dict):
     def __init__(self, _dict, onchanged=None):
         self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
+        self.default_value = {}
         super(Bidict, self).__init__()
         for k, v in _dict.items():
             super(Bidict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
+
+    def __getitem__(self, key):
+        try:
+            return super(Bidict, self).__getitem__(key)
+        except KeyError:
+            if key in self.default_value.keys():
+                return self.default_value[key]
+            else:
+                raise
+
+    def get(self, key, default):
+        return super(Bidict, self).get(key, self.default_value.get(key, default))
 
     def __delitem__(self, key):
         super(Bidict, self).__delitem__(key)
@@ -74,8 +87,11 @@ class Bidict(dict):
 
     def __setitem__(self, key, value):
         value = Bilateralize(value, self._onsubchanged)
-        super(Bidict, self).__setitem__(key, value)
-        self._onchanged(self)
+        old_value = None
+        old_value = super(Bidict, self).get(key, None)
+        if old_value == None or not old_value == value:
+            super(Bidict, self).__setitem__(key, value)
+            self._onchanged(self)
 
     def __enter__(self):
         self._onchanged_back = self._onchanged
@@ -95,19 +111,20 @@ class Bidict(dict):
                 r"'Bidict' object has no attribute '%s'" % key)
 
     def clear(self):
+        self.default_value = {}
         super(Bidict, self).clear()
         self._onchanged(self)
 
     def get_set(self, key, default=None):
-        if key in self.keys():
+        try:
             return self[key]
-        else:
+        except KeyError:
             if isinstance(default, dict) or isinstance(default, list):
                 def _onchanged(x):
                     self[key] = x
                     x._onchanged = self._onsubchanged
                 value = Bilateralize(default, _onchanged)
-                self.setdefault(key, value)
+                self.default_value[key] = value
                 return value
             else:
                 self[key] = default
@@ -129,8 +146,13 @@ class Bilist(list):
 
     def __setitem__(self, key, value):
         value = Bilateralize(value, self._onsubchanged)
-        super(Bilist, self).__setitem__(key, value)
-        self._onchanged(self)
+        try:
+            old_value = self[key]
+        except IndexError:
+            old_value = None
+        if old_value == None or not old_value == value:
+            super(Bilist, self).__setitem__(key, value)
+            self._onchanged(self)
 
     def __enter__(self):
         self._onchanged_back = self._onchanged

@@ -41,6 +41,11 @@ def test_with():
     d['key2'] = 'value2'
     assert changed_count == 2
 
+    # New value is just as same as the old one, should not fire changed
+    d['key1'] = 'value1'
+    d['key2'] = 'value2'
+    assert changed_count == 2
+
     with d:
         d['key3'] = 'value3'
         d['key4'] = 'value3'

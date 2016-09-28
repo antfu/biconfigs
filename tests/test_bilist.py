@@ -51,6 +51,14 @@ def test_with():
     l.append(4)
     assert changed_count == 2
 
+    # New value is just as same as the old one, should not fire changed
+    l[0] = 1
+    l[2] = 3
+    assert changed_count == 2
+
+    with pytest.raises(IndexError):
+        l[100] = 1
+
     with l:
         for i in range(5,10):
             l.append(i)
