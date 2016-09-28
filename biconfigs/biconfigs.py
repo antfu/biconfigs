@@ -151,8 +151,8 @@ class BiList(list):
 
 class BiConfigs(BiDict):
     def __init__(self,
-                default_value={},
                 path=None,
+                default_value={},
                 parser=None,
                 storage=None,
                 onchanged=None,

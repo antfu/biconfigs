@@ -22,7 +22,8 @@ Not dependencies required.
                           'username': 'Anthony',
                           'list': [] }
 
->>> configs['options']['list'].append('example')
+# Access with simple 'x.y.z' style
+>>> configs.options.list.append('example')
 
 >>> with open('configs.json','r') as f:
 ...     print(f.read())
