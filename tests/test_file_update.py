@@ -18,23 +18,23 @@ def writefile(data):
 
 class TestFileUpdate(object):
 
-    def setup_class(cls):
+    def setup_class(self):
         if os.path.exists(FILENAME):
             os.remove(FILENAME)
         # Create a Biconfigs instance,
-        cls.config = biconfigs.Biconfigs(path=FILENAME,
+        self.config = biconfigs.Biconfigs(path=FILENAME,
                                         default_value={'default':'value'},
                                         # set parser='json' to disable json beautify
                                         parser='json',
                                         # use sync writing
                                         async_write=False)
-        assert cls.config._Biconfigs__storage == 'file'
-        assert cls.config.storage == '<file:'+FILENAME+'>'
+        assert self.config._Biconfigs__storage == 'file'
+        assert self.config.storage == '<file:'+FILENAME+'>'
         assert os.path.exists(FILENAME)
         assert readfile() == '{"default": "value"}'
 
-    def teardown_class(cls):
-        cls.config.release()
+    def teardown_class(self):
+        self.config.release()
         if os.path.exists(FILENAME):
             os.remove(FILENAME)
 
@@ -51,29 +51,29 @@ class TestFileUpdate(object):
     def test_nested_update(self):
         pass
 
-    def test_get_set(self):
+    def test_setdefault(self):
         self.config.clear()
 
-        # get_set a value should update to file instantly
-        assert self.config.get_set('item', 'value') == 'value'
-        # should return the previous value when get_set at the 2nd time
-        assert self.config.get_set('item', 'wrong-value') == 'value'
+        # setdefault a value should update to file instantly
+        assert self.config.setdefault('item', 'value') == 'value'
+        # should return the previous value when setdefault at the 2nd time
+        assert self.config.setdefault('item', 'wrong-value') == 'value'
         assert readfile() == '{"item": "value"}'
 
         self.config.clear()
 
-        # get_set a dict/list should not update the file
+        # setdefault a dict/list should not update the file
         # until the nested dict/list changed
-        get_set_dict = self.config.get_set('gs_dict', {})
-        get_set_list = self.config.get_set('gs_list', [])
-        # should return the previous value when get_set at the 2nd time
-        assert self.config.get_set('gs_dict', None) == get_set_dict
-        assert readfile() == '{}'
-        assert isinstance(get_set_dict, biconfigs.Bidict)
-        assert isinstance(get_set_list, biconfigs.Bilist)
+        sd_dict = self.config.setdefault('gs_dict', {})
+        sd_list = self.config.setdefault('gs_list', [])
+        # should return the previous value when setdefault at the 2nd time
+        assert self.config.setdefault('gs_dict', None) == sd_dict
+        assert isinstance(sd_dict, biconfigs.Bidict)
+        assert isinstance(sd_list, biconfigs.Bilist)
 
-        # nested dict changed, update the file
-        get_set_dict['nested'] = 1
+        del(self.config['gs_list'])
+
+        sd_dict['nested'] = 1
         assert readfile() == '{"gs_dict": {"nested": 1}}'
 
     def test_reload(self):

@@ -3,38 +3,19 @@ import os
 import random
 import string
 import codecs
+import warnings
 from collections import MutableMapping, MutableSequence
 from threading import Thread
-from .exceptions import *
 from .parsers import PARSERS, EXTENSION_TO_PARSER
+from .storages import STORAGES
+from .exceptions import (InvalidPaserError,
+                         InvalidStorageError,
+                         AlreadyCreatedError)
 
 __randstr_chars = string.ascii_letters + string.digits
-__memory_storage = {}
 
 def randstr(length=10):
     return ''.join(random.sample(__randstr_chars, length))
-
-def file_read(path):
-    with codecs.open(path, 'r', 'utf-8') as f:
-        return f.read()
-
-def file_write(path, text):
-    with codecs.open(path, 'w', 'utf-8') as f:
-        return f.write(text)
-
-def memory_write(key, data):
-    __memory_storage[key] = data
-
-STORAGES = {
-    'file': {
-        'read': file_read,
-        'write': file_write
-    },
-    'memory': {
-        'read': lambda x: __memory_storage[x],
-        'write': memory_write
-    }
-}
 
 def Bilateralize(value, onchanged):
     if isinstance(value, MutableMapping) and not isinstance(value, Bidict):
@@ -49,22 +30,9 @@ class Bidict(dict):
     def __init__(self, _dict, onchanged=None):
         self._onchanged = onchanged or (lambda x: None)
         self._onsubchanged = lambda x: self._onchanged(self)
-        self.default_value = {}
         super(Bidict, self).__init__()
         for k, v in _dict.items():
             super(Bidict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
-
-    def __getitem__(self, key):
-        try:
-            return super(Bidict, self).__getitem__(key)
-        except KeyError:
-            if key in self.default_value.keys():
-                return self.default_value[key]
-            else:
-                raise
-
-    def get(self, key, default):
-        return super(Bidict, self).get(key, self.default_value.get(key, default))
 
     def __delitem__(self, key):
         super(Bidict, self).__delitem__(key)
@@ -114,20 +82,18 @@ class Bidict(dict):
             super(Bidict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
         self._onchanged(self)
 
-    def get_set(self, key, default=None):
+    def get_set(self, *args, **kwargs): # pragma: no cover
+        warnings.warn('"get_set" is deprecated and will be removed in future '
+                      'release, Use "setdefault" instead.', DeprecationWarning)
+        return self.setdefault(*args, **kwargs)
+
+    def setdefault(self, key, default=None):
         try:
             return self[key]
         except KeyError:
-            if isinstance(default, (MutableMapping, MutableSequence)):
-                def _onchanged(x):
-                    self[key] = x
-                    x._onchanged = self._onsubchanged
-                value = Bilateralize(default, _onchanged)
-                self.default_value[key] = value
-                return value
-            else:
-                self[key] = default
-                return self[key]
+            value = Bilateralize(default, self._onsubchanged)
+            self[key] = default
+            return self[key]
 
 
 class Bilist(list):
@@ -200,6 +166,7 @@ class Bilist(list):
         super(Bilist, self).sort(*args, **kwargs)
         self._onchanged(self)
 
+
 class Biconfigs(Bidict):
     __file_pathes = {}
 
@@ -240,7 +207,7 @@ class Biconfigs(Bidict):
             storage = storage or 'file'
             if not parser:
                 ext = path.rsplit('.')[-1].lower()
-                if ext in EXTENSION_TO_PARSER.keys():
+                if ext in EXTENSION_TO_PARSER:
                     parser = EXTENSION_TO_PARSER[ext]
             parser = parser or 'pretty-json'
         else:
@@ -251,12 +218,12 @@ class Biconfigs(Bidict):
         self.__path = path
         self.__abs_path = os.path.abspath(self.__path)
 
-        if self.__parser not in PARSERS.keys():
+        if self.__parser not in PARSERS:
             raise InvalidPaserError('Invalid parser named "%s"' % self.__parser)
-        if self.__storage not in STORAGES.keys():
+        if self.__storage not in STORAGES:
             raise InvalidStorageError('Invalid storage named "%s"' % self.__storage)
         if self.__storage == 'file':
-            if self.__abs_path in Biconfigs.__file_pathes.keys():
+            if self.__abs_path in Biconfigs.__file_pathes:
                 raise AlreadyCreatedError('Biconfigs for "%s" is already created.'
                                           % self.__abs_path)
             else:
@@ -330,7 +297,7 @@ class Biconfigs(Bidict):
         self._rebind(False)
 
     def release(self):
-        if self.__abs_path in Biconfigs.__file_pathes.keys():
+        if self.__abs_path in Biconfigs.__file_pathes:
             del(Biconfigs.__file_pathes[self.__abs_path])
         self._unbind()
         del(self)

@@ -1,10 +1,10 @@
 import os
-from codecs import open
+import codecs
 from setuptools import setup
 
 def read(fname):
     try:
-        with open(fname, 'r', 'utf-8') as f:
+        with codecs.open(fname, 'r', 'utf-8') as f:
             return f.read()
     except IOError:
         return ""

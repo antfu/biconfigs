@@ -3,7 +3,7 @@
 [![Coverage](https://img.shields.io/codecov/c/github/antfu/biconfigs.svg?style=flat-square)](https://codecov.io/gh/antfu/biconfigs)
 [![Codacy grade](https://img.shields.io/codacy/grade/4bf188eecc374c76b5c6ddbe93315078.svg?style=flat-square)](https://www.codacy.com/app/anthonyfu117/biconfigs/dashboard)
 [![Python Version](https://img.shields.io/pypi/pyversions/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
-[![PyPI](https://img.shields.io/pypi/v/biconfigs.svg?style=flat-square)](https:/  /pypi.python.org/pypi/biconfigs)
+[![PyPI](https://img.shields.io/pypi/v/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
 [![PyPI](https://img.shields.io/pypi/status/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
 [![License](https://img.shields.io/pypi/l/biconfigs.svg?style=flat-square)](https://github.com/antfu/biconfigs/blob/master/LICENSE)
 
@@ -92,23 +92,6 @@ with configs:
   for i in range(1000):
     configs['some_key'] = i
 # This statement will execute saving process only one time when exiting "with" scope
-```
-
-### Get or set
-Biconfigs provides a special function `get_set` for dict.
-The `get_set` acts just like `dict.get(key, default)`, but it will save the default value to dict if the key is not exists.
-
-For example:
-```python
-# get_set will return the default value if the key is not exists
->>> self.config.get_set('item', 'value')
-'value'
-# get_set also set the default value to dict
->>> self.config.item
-'value'
-# get_set will just return the value of existing key
->>> self.config.get_set('item', 'new-value')
-'value'
 ```
 
 ### Reload from file

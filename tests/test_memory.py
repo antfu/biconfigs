@@ -3,18 +3,18 @@ import json
 
 class TestMemoryStorage(object):
 
-    def setup_class(cls):
-        cls.change_count = 0
+    def setup_class(self):
+        self.change_count = 0
         def onchanged(config):
-            cls.change_count += 1
+            self.change_count += 1
 
-        cls.config = biconfigs.Biconfigs(
+        self.config = biconfigs.Biconfigs(
             default_value={'default':'value'},
             onchanged=onchanged
         )
-        assert cls.config._Biconfigs__storage == 'memory'
-        assert cls.change_count == 0
-        assert json.dumps(cls.config) == '{"default": "value"}'
+        assert self.config._Biconfigs__storage == 'memory'
+        assert self.change_count == 0
+        assert json.dumps(self.config) == '{"default": "value"}'
 
     def test_basic_update(self):
         self.config.clear()
