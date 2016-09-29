@@ -1,11 +1,10 @@
 from __future__ import print_function
 import os
-import json
 import random
 import string
+import codecs
 from collections import MutableMapping, MutableSequence
 from threading import Thread
-from codecs import open
 from .exceptions import *
 from .parsers import PARSERS, EXTENSION_TO_PARSER
 
@@ -16,11 +15,11 @@ def randstr(length=10):
     return ''.join(random.sample(__randstr_chars, length))
 
 def file_read(path):
-    with open(path, 'r', 'utf-8') as f:
+    with codecs.open(path, 'r', 'utf-8') as f:
         return f.read()
 
 def file_write(path, text):
-    with open(path, 'w', 'utf-8') as f:
+    with codecs.open(path, 'w', 'utf-8') as f:
         return f.write(text)
 
 def memory_write(key, data):

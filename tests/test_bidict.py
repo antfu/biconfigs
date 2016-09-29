@@ -6,7 +6,7 @@ def test_list():
     global changed_count
     changed_count = 0
 
-    def onchanged(list):
+    def onchanged(obj):
         global changed_count
         changed_count += 1
 
@@ -34,17 +34,17 @@ def test_dict():
     d['setitem2'] = 2.1
     assert d['setitem2'] == 2.1
 
-    with pytest.raises(KeyError) as exinfo:
-        d['item_not_exists']
+    with pytest.raises(KeyError):
+        _ = d['item_not_exists']
 
-    with pytest.raises(AttributeError) as exinfo:
-        d.item_not_exists
+    with pytest.raises(AttributeError):
+        _ = d.item_not_exists
 
     d['itemtodel'] = 'value'
     assert d['itemtodel'] == 'value'
     del(d['itemtodel'])
-    with pytest.raises(KeyError) as exinfo:
-        d['itemtodel']
+    with pytest.raises(KeyError):
+        _ = d['itemtodel']
 
 def test_with():
     global changed_count

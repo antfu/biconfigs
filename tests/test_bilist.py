@@ -1,24 +1,25 @@
 import pytest
 import biconfigs
 
-change_count = 0
+changed_count = 0
 def test_list():
-    global change_count
+    global changed_count
+    changed_count = 0
 
-    def onchanged(list):
-        global change_count
-        change_count += 1
+    def onchanged(obj):
+        global changed_count
+        changed_count += 1
 
     orginal_list = ['orginal_vale', 2]
     l = biconfigs.Bilist(orginal_list, onchanged=onchanged)
 
     assert len(orginal_list) == len(l)
 
-    for i in range(len(orginal_list)):
-        assert l[i] == orginal_list[i]
+    for index, value in enumerate(orginal_list):
+        assert l[index] == value
 
     # Should not fire changed till now
-    assert change_count == 0
+    assert changed_count == 0
 
     l.clear()
     assert len(l) == 0
@@ -45,11 +46,10 @@ def test_list():
     # [1, 3, 4]
     assert l[0] == 1
 
-    assert change_count == 11
+    assert changed_count == 11
 
     assert len(l) == 3
 
-changed_count = 0
 def test_with():
     global changed_count
     changed_count = 0
@@ -91,8 +91,8 @@ def test_nested():
     for k in nested_dict1.keys():
         assert l[0][k] == nested_dict1[k]
 
-    for i in range(len(nested_list1)):
-        assert l[1][i] == nested_list1[i]
+    for index, value in enumerate(nested_list1):
+        assert l[1][index] == value
 
     l.clear()
     l.append([])

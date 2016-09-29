@@ -4,16 +4,16 @@ import pytest
 import biconfigs
 import json
 import os
-from codecs import open
+import codecs
 
 FILENAME = '.test_file_update.json'
 
 def readfile():
-    with open(FILENAME,'r','utf-8') as f:
+    with codecs.open(FILENAME,'r','utf-8') as f:
         return f.read()
 
 def writefile(data):
-    with open(FILENAME,'w','utf-8') as f:
+    with codecs.open(FILENAME,'w','utf-8') as f:
         return f.write(data)
 
 class TestFileUpdate(object):
@@ -91,4 +91,4 @@ class TestFileUpdate(object):
         assert self.config.b == 'value'
         assert len(self.config) == 2
         with pytest.raises(AttributeError):
-            self.config.item1
+            _ = self.config.item1
