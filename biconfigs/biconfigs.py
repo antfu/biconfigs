@@ -327,9 +327,16 @@ class Biconfigs(Bidict):
     def _unbind(self):
         self.__binded = False
 
-    def _rebind(self):
+    def _rebind(self, save_immediately=True):
         self.__binded = True
-        self.__biconfig_onchanged(self)
+        if save_immediately:
+            self.__biconfig_onchanged(self)
+
+    def reload(self):
+        self._unbind()
+        self.clear()
+        self.update(self.__loads(self.__read(self.path)))
+        self._rebind(False)
 
     def release(self):
         if self.__abs_path in Biconfigs.__file_pathes.keys():
