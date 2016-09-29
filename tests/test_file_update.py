@@ -25,6 +25,7 @@ class TestFileUpdate(object):
                                         # use sync writing
                                         async_write=False)
         assert cls.config._Biconfigs__storage == 'file'
+        assert cls.config.storage == '<file:'+FILENAME+'>'
         assert os.path.exists(FILENAME)
         assert readfile() == '{"default": "value"}'
 

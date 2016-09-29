@@ -2,7 +2,7 @@ import biconfigs
 import json
 
 write_count = 0
-def test_callbacks():
+def test_callbacks_sync():
     global write_count
     write_count = 0
 
@@ -12,7 +12,8 @@ def test_callbacks():
 
     config = biconfigs.Biconfigs(
         before_save=before_save,
-        parser='json'
+        parser='json',
+        async_write=False
     )
 
     # Hack to check write times

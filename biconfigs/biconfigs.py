@@ -214,7 +214,6 @@ class Biconfigs(Bidict):
             config changed.
         '''
 
-        self.path = path
         self.onchanged = onchanged or (lambda x: None)
         self.before_save = before_save or (lambda x: None)
         self.__pending_changes = False
@@ -229,6 +228,7 @@ class Biconfigs(Bidict):
         else:
             path = randstr(20)
 
+        self.__path = path
         self.__storage = storage or 'memory'
         self.__parser = parser or 'none'
 
@@ -250,6 +250,14 @@ class Biconfigs(Bidict):
 
         super(Biconfigs,self).__init__(self.__loads(self.__read(self.path)),
                                        onchanged=self.__biconfig_onchanged)
+
+    @property
+    def storage(self):
+        return '<%s:%s>' % (self.__storage, self.path)
+
+    @property
+    def path(self):
+        return self.__path
 
     def __async_write(self):
         if self.__writing:
