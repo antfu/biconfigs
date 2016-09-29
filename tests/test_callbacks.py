@@ -16,12 +16,12 @@ def test_callbacks():
     )
 
     # Hack to check write times
-    old_write = config.write
+    old_write = config._Biconfigs__write
     def alter_write(*args):
         global write_count
         old_write(*args)
         write_count += 1
-    config.write = alter_write
+    config._Biconfigs__write = alter_write
 
     assert write_count == 0
     config['123'] = '123'

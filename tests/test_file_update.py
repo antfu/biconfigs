@@ -18,9 +18,13 @@ class TestFileUpdate(object):
         if os.path.exists(FILENAME):
             os.remove(FILENAME)
         # Create a Biconfigs instance,
-        # set parser='json' to disable json beautify
-        cls.config = biconfigs.Biconfigs(path=FILENAME, default_value={'default':'value'}, parser='json')
-        assert cls.config.storage == 'file'
+        cls.config = biconfigs.Biconfigs(path=FILENAME,
+                                        default_value={'default':'value'},
+                                        # set parser='json' to disable json beautify
+                                        parser='json',
+                                        # use sync writing
+                                        async_write=False)
+        assert cls.config._Biconfigs__storage == 'file'
         assert os.path.exists(FILENAME)
         assert readfile() == '{"default": "value"}'
 

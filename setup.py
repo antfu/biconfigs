@@ -12,6 +12,7 @@ def read(fname):
 try:
     from pypandoc import convert
 except ImportError:
+    # failed to load pypandoc, use the orginal markdown
     convert = lambda fname, to: read(fname)
 
 version=read(os.path.join('biconfigs','__version__.py')).strip().split('=')[-1].strip("' ")
@@ -43,6 +44,5 @@ setup(name='biconfigs',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.4',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 3.6'
+          'Programming Language :: Python :: 3.5'
       ],)

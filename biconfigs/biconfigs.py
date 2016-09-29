@@ -3,6 +3,7 @@ import os
 import json
 import random
 import string
+from threading import Thread
 from codecs import open
 from .exceptions import *
 
@@ -196,6 +197,7 @@ class Biconfigs(Bidict):
                 default_value={},
                 parser=None,
                 storage=None,
+                async_write=True,
                 onchanged=None,
                 before_save=None):
         '''Constructs a <Biconfigs> instance
@@ -215,8 +217,11 @@ class Biconfigs(Bidict):
         self.path = path
         self.onchanged = onchanged or (lambda x: None)
         self.before_save = before_save or (lambda x: None)
-        self.pending_changes = False
-        self._binded = True
+        self.__pending_changes = False
+        self.__binded = True
+        self.__writing = False
+        self.__use_async_writing = async_write
+        self.__async_writing_thread = None
 
         if path:
             parser = parser or 'pretty-json'
@@ -224,44 +229,65 @@ class Biconfigs(Bidict):
         else:
             path = randstr(20)
 
-        self.storage = storage or 'memory'
-        self.parser = parser or 'none'
+        self.__storage = storage or 'memory'
+        self.__parser = parser or 'none'
 
-        if not self.parser in PARSERS.keys():
+        if not self.__parser in PARSERS.keys():
             raise InvalidPaserError
-        if not self.storage in STORAGES.keys():
+        if not self.__storage in STORAGES.keys():
             raise InvalidStorageError
 
-        self.loads = PARSERS[self.parser]['loads']
-        self.dumps = PARSERS[self.parser]['dumps']
-        self.read = STORAGES[self.storage]['read']
-        self.write = STORAGES[self.storage]['write']
+        self.__loads = PARSERS[self.__parser]['loads']
+        self.__dumps = PARSERS[self.__parser]['dumps']
+        self.__read = STORAGES[self.__storage]['read']
+        self.__write = STORAGES[self.__storage]['write']
 
-        if self.storage == 'file' and not os.path.exists(self.path):
-            self.write(self.path, self.dumps(default_value))
+        if self.__storage == 'file' and not os.path.exists(self.path):
+            self.__write(self.path, self.__dumps(default_value))
 
-        if self.storage == 'memory':
-            self.write(self.path, self.dumps(default_value))
+        if self.__storage == 'memory':
+            self.__write(self.path, self.__dumps(default_value))
 
-        super(Biconfigs,self).__init__(self.loads(self.read(self.path)),
-                                       onchanged=self._biconfig_onchanged)
+        super(Biconfigs,self).__init__(self.__loads(self.__read(self.path)),
+                                       onchanged=self.__biconfig_onchanged)
 
-    def _biconfig_onchanged(self, obj):
-        if not self._binded:
+    def __async_write(self):
+        if self.__writing:
             return
-        self.pending_changes = True
+        if not self.__use_async_writing:
+            self.__sync_write()
+        else:
+            if not self.__async_writing_thread \
+            or not self.__async_writing_thread.is_alive():
+                self.__async_writing_thread = Thread(target=self.__sync_write)
+                self.__async_writing_thread.start()
+
+    def __sync_write(self):
+        self.__writing = True
+        self.__pending_changes = False
+        self.__write(self.path, self.__dumps(self))
+        self.__writing = False
+
+        # If there are new changes made during writing
+        # Write again
+        if self.__pending_changes:
+            self.__sync_write()
+
+    def __biconfig_onchanged(self, obj):
+        if not self.__binded:
+            return
+        self.__pending_changes = True
         self.onchanged(self)
         if self.before_save(self) == False:
             return
-        self.write(self.path, self.dumps(obj))
-        self.pending_changes = False
+        self.__async_write()
 
     def _unbind(self):
-        self._binded = False
+        self.__binded = False
 
     def _rebind(self):
-        self._binded = True
-        self._biconfig_onchanged(self)
+        self.__binded = True
+        self.__biconfig_onchanged(self)
 
     def release(self):
         self._unbind()
