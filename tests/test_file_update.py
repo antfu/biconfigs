@@ -60,12 +60,14 @@ class TestFileUpdate(object):
 
         # get_set a dict/list should not update the file
         # until the nested dict/list changed
-        get_set_dict = self.config.get_set('item', {})
+        get_set_dict = self.config.get_set('gs_dict', {})
+        get_set_list = self.config.get_set('gs_list', [])
         # should return the previous value when get_set at the 2nd time
-        assert self.config.get_set('item', None) == get_set_dict
+        assert self.config.get_set('gs_dict', None) == get_set_dict
         assert readfile() == '{}'
         assert isinstance(get_set_dict, biconfigs.Bidict)
+        assert isinstance(get_set_list, biconfigs.Bilist)
 
         # nested dict changed, update the file
         get_set_dict['nested'] = 1
-        assert readfile() == '{"item": {"nested": 1}}'
+        assert readfile() == '{"gs_dict": {"nested": 1}}'

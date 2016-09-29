@@ -3,14 +3,13 @@ import os
 import json
 import random
 import string
+from collections import MutableMapping, MutableSequence
 from threading import Thread
 from codecs import open
 from .exceptions import *
 
-
 __randstr_chars = string.ascii_letters + string.digits
 __memory_storage = {}
-
 
 def randstr(length=10):
     return ''.join(random.sample(__randstr_chars, length))
@@ -24,7 +23,8 @@ def file_write(path, text):
         return f.write(text)
 
 def memory_write(key, data):
-     __memory_storage[key] = data
+    global __memory_storage
+    __memory_storage[key] = data
 
 PARSERS = {
     'json': {
@@ -33,7 +33,7 @@ PARSERS = {
     },
     'pretty-json': {
         'loads': json.loads,
-        'dumps': lambda dict: json.dumps(dict, indent=2, sort_keys=True)
+        'dumps': lambda d: json.dumps(d, indent=2, sort_keys=True)
     },
     'none': {
         'loads': lambda x: x,
@@ -53,9 +53,9 @@ STORAGES = {
 }
 
 def Bilateralize(value, onchanged):
-    if isinstance(value, dict) and not isinstance(value, Bidict):
+    if isinstance(value, MutableMapping) and not isinstance(value, Bidict):
         return Bidict(value, onchanged)
-    elif isinstance(value, list) and not isinstance(value, Bilist):
+    elif isinstance(value, MutableSequence) and not isinstance(value, Bilist):
         return Bilist(value, onchanged)
     return value
 
@@ -119,7 +119,7 @@ class Bidict(dict):
         try:
             return self[key]
         except KeyError:
-            if isinstance(default, dict) or isinstance(default, list):
+            if isinstance(default, MutableMapping) or isinstance(default, MutableSequence):
                 def _onchanged(x):
                     self[key] = x
                     x._onchanged = self._onsubchanged
@@ -192,6 +192,9 @@ class Bilist(list):
 
 
 class Biconfigs(Bidict):
+    __file_pathes = {}
+
+
     def __init__(self,
                 path=None,
                 default_value={},
@@ -208,6 +211,7 @@ class Biconfigs(Bidict):
         :type default_value: dict
         :param storage: The storage name in 'STORAGES' to decide the method
             read/write. Default set as 'memory'.
+        :param async_write: Use non-blocking writing or not. Default to True.
         :param before_save: A function pass by user. Being fired before saving
             the file. Retrun False will abort the saving.
         :param onchanged: A function pass by user. Being fired once the
@@ -228,14 +232,20 @@ class Biconfigs(Bidict):
         else:
             path = randstr(20)
 
-        self.__path = path
         self.__storage = storage or 'memory'
         self.__parser = parser or 'none'
+        self.__path = path
+        self.__abs_path = os.path.abspath(self.__path)
 
         if not self.__parser in PARSERS.keys():
-            raise InvalidPaserError
+            raise InvalidPaserError('Invalid paser named "%s"' % self.__parser)
         if not self.__storage in STORAGES.keys():
-            raise InvalidStorageError
+            raise InvalidStorageError('Invalid storage named "%s"' % self.__storage)
+        if self.__storage == 'file':
+            if self.__abs_path in Biconfigs.__file_pathes.keys():
+                raise AlreadyCreatedError('Biconfigs for "%s" is already created.' % self.__abs_path)
+            else:
+                Biconfigs.__file_pathes[self.__abs_path] = self
 
         self.__loads = PARSERS[self.__parser]['loads']
         self.__dumps = PARSERS[self.__parser]['dumps']
@@ -298,5 +308,7 @@ class Biconfigs(Bidict):
         self.__biconfig_onchanged(self)
 
     def release(self):
+        if self.__abs_path in Biconfigs.__file_pathes.keys():
+            del(Biconfigs.__file_pathes[self.__abs_path])
         self._unbind()
         del(self)

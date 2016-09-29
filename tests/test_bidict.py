@@ -47,9 +47,8 @@ def test_with():
     assert changed_count == 2
 
     with d:
-        d['key3'] = 'value3'
-        d['key4'] = 'value3'
-        d['key5'] = 'value5'
+        for i in range(100):
+            d['key'] = i
 
     assert changed_count == 3
 

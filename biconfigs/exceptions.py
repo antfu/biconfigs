@@ -3,3 +3,6 @@ class InvalidPaserError(Exception):
 
 class InvalidStorageError(Exception):
     pass
+
+class AlreadyCreatedError(Exception):
+    pass

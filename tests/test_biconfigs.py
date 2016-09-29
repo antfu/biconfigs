@@ -1,5 +1,6 @@
 import biconfigs
 import json
+import time
 
 write_count = 0
 def test_callbacks_sync():
@@ -42,3 +43,29 @@ def test_callbacks_sync():
     assert write_count == 1
     config._rebind()
     assert write_count == 2
+
+class TestBlocking():
+    def setup_class(self):
+        self.sleeptime = 0.01
+        self.writing = False
+        self.blocking_config = biconfigs.Biconfigs(async_write=False)
+        self.non_blocking_config = biconfigs.Biconfigs(async_write=True)
+
+        def fake_write(*args):
+            self.writing = True
+            time.sleep(self.sleeptime)
+            self.writing = False
+
+        self.blocking_config._Biconfigs__write = fake_write
+        self.non_blocking_config._Biconfigs__write = fake_write
+
+    def test_blocking(self):
+        self.blocking_config['item'] = 'value'
+        assert self.writing == False
+
+    def test_non_blocking(self):
+        assert self.writing == False
+        self.non_blocking_config['item'] = 'value'
+        assert self.writing == True
+        time.sleep(self.sleeptime*2)
+        assert self.writing == False
