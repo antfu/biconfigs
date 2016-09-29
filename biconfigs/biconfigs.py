@@ -7,6 +7,7 @@ from collections import MutableMapping, MutableSequence
 from threading import Thread
 from codecs import open
 from .exceptions import *
+from .parsers import PARSERS, EXTENSION_TO_PARSER
 
 __randstr_chars = string.ascii_letters + string.digits
 __memory_storage = {}
@@ -24,21 +25,6 @@ def file_write(path, text):
 
 def memory_write(key, data):
     __memory_storage[key] = data
-
-PARSERS = {
-    'json': {
-        'loads': json.loads,
-        'dumps': json.dumps
-    },
-    'pretty-json': {
-        'loads': json.loads,
-        'dumps': lambda d: json.dumps(d, indent=2, sort_keys=True)
-    },
-    'none': {
-        'loads': lambda x: x,
-        'dumps': lambda y: y
-    }
-}
 
 STORAGES = {
     'file': {
@@ -133,7 +119,7 @@ class Bidict(dict):
         try:
             return self[key]
         except KeyError:
-            if isinstance(default, MutableMapping) or isinstance(default, MutableSequence):
+            if isinstance(default, (MutableMapping, MutableSequence)):
                 def _onchanged(x):
                     self[key] = x
                     x._onchanged = self._onsubchanged
@@ -251,8 +237,13 @@ class Biconfigs(Bidict):
         self.__async_writing_thread = None
 
         if path:
-            parser = parser or 'pretty-json'
+            path = path.strip()
             storage = storage or 'file'
+            if not parser:
+                ext = path.rsplit('.')[-1].lower()
+                if ext in EXTENSION_TO_PARSER.keys():
+                    parser = EXTENSION_TO_PARSER[ext]
+            parser = parser or 'pretty-json'
         else:
             path = randstr(20)
 
@@ -262,12 +253,13 @@ class Biconfigs(Bidict):
         self.__abs_path = os.path.abspath(self.__path)
 
         if self.__parser not in PARSERS.keys():
-            raise InvalidPaserError('Invalid paser named "%s"' % self.__parser)
+            raise InvalidPaserError('Invalid parser named "%s"' % self.__parser)
         if self.__storage not in STORAGES.keys():
             raise InvalidStorageError('Invalid storage named "%s"' % self.__storage)
         if self.__storage == 'file':
             if self.__abs_path in Biconfigs.__file_pathes.keys():
-                raise AlreadyCreatedError('Biconfigs for "%s" is already created.' % self.__abs_path)
+                raise AlreadyCreatedError('Biconfigs for "%s" is already created.'
+                                          % self.__abs_path)
             else:
                 Biconfigs.__file_pathes[self.__abs_path] = self
 
