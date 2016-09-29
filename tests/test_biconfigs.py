@@ -1,6 +1,7 @@
 import biconfigs
 import json
 import time
+import pytest
 
 write_count = 0
 def test_callbacks_sync():
@@ -46,7 +47,7 @@ def test_callbacks_sync():
 
 class TestBlocking():
     def setup_class(self):
-        self.sleeptime = 0.01
+        self.sleeptime = 0.05
         self.writing = False
         self.blocking_config = biconfigs.Biconfigs(async_write=False)
         self.non_blocking_config = biconfigs.Biconfigs(async_write=True)
@@ -69,3 +70,15 @@ class TestBlocking():
         assert self.writing == True
         time.sleep(self.sleeptime*2)
         assert self.writing == False
+
+
+def test_invalid_parser_storages():
+    with pytest.raises(biconfigs.InvalidPaserError):
+        biconfigs.Biconfigs(parser='invalid_parser')
+
+    with pytest.raises(biconfigs.InvalidStorageError):
+        biconfigs.Biconfigs(storage='invalid_storage')
+
+    with pytest.raises(biconfigs.AlreadyCreatedError):
+        biconfigs.Biconfigs(path='.test.json')
+        biconfigs.Biconfigs(path='.test.json')

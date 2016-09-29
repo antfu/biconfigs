@@ -1,6 +1,27 @@
 import pytest
 import biconfigs
 
+changed_count = 0
+def test_list():
+    global changed_count
+    changed_count = 0
+
+    def onchanged(list):
+        global changed_count
+        changed_count += 1
+
+    orginal_dict = {'a': 1, 'b': 2}
+    d = biconfigs.Bidict(orginal_dict, onchanged=onchanged)
+
+    assert changed_count == 0
+    assert d.pop('a') == 1
+    assert d.popitem() == ('b', 2)
+    assert changed_count == 2
+
+    d.update({'c': 123, 'd': 456})
+    assert changed_count == 3
+    assert d['c'] == 123
+
 def test_dict():
     d = biconfigs.Bidict({'orginal_key': 'orginal_value'})
 
@@ -25,10 +46,10 @@ def test_dict():
     with pytest.raises(KeyError) as exinfo:
         d['itemtodel']
 
-changed_count = 0
 def test_with():
     global changed_count
     changed_count = 0
+
     def onchanged(obj):
         global changed_count
         changed_count += 1
@@ -51,7 +72,6 @@ def test_with():
             d['key'] = i
 
     assert changed_count == 3
-
 
 def test_nested():
     d = biconfigs.Bidict({'nested_dict': {

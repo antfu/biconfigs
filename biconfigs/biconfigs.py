@@ -23,7 +23,6 @@ def file_write(path, text):
         return f.write(text)
 
 def memory_write(key, data):
-    global __memory_storage
     __memory_storage[key] = data
 
 PARSERS = {
@@ -59,6 +58,7 @@ def Bilateralize(value, onchanged):
         return Bilist(value, onchanged)
     return value
 
+
 class Bidict(dict):
 
     def __init__(self, _dict, onchanged=None):
@@ -89,7 +89,7 @@ class Bidict(dict):
         value = Bilateralize(value, self._onsubchanged)
         old_value = None
         old_value = super(Bidict, self).get(key, None)
-        if old_value == None or not old_value == value:
+        if old_value is None or not old_value is value:
             super(Bidict, self).__setitem__(key, value)
             self._onchanged(self)
 
@@ -107,12 +107,26 @@ class Bidict(dict):
         try:
             return self[key]
         except KeyError:
-            raise AttributeError(
-                r"'Bidict' object has no attribute '%s'" % key)
+            raise AttributeError(r"'Bidict' object has no attribute '%s'" % key)
+
+    def pop(self, *args, **kwargs):
+        result = super(Bidict, self).pop(*args, **kwargs)
+        self._onchanged(self)
+        return result
+
+    def popitem(self, *args, **kwargs):
+        result = super(Bidict, self).popitem(*args, **kwargs)
+        self._onchanged(self)
+        return result
 
     def clear(self):
         self.default_value = {}
         super(Bidict, self).clear()
+        self._onchanged(self)
+
+    def update(self, new_dict):
+        for k, v in new_dict.items():
+            super(Bidict, self).__setitem__(k, Bilateralize(v, self._onsubchanged))
         self._onchanged(self)
 
     def get_set(self, key, default=None):
@@ -150,7 +164,7 @@ class Bilist(list):
             old_value = self[key]
         except IndexError:
             old_value = None
-        if old_value == None or not old_value == value:
+        if old_value is None or not old_value is value:
             super(Bilist, self).__setitem__(key, value)
             self._onchanged(self)
 
@@ -162,6 +176,12 @@ class Bilist(list):
     def __exit__(self, *args):
         self._onchanged = self._onchanged_back
         del(self._onchanged_back)
+        self._onchanged(self)
+
+    def extend(self, new_list):
+        for value in new_list:
+            value = Bilateralize(value, self._onsubchanged)
+            super(Bilist, self).append(value)
         self._onchanged(self)
 
     def append(self, value):
@@ -183,21 +203,24 @@ class Bilist(list):
         self._onchanged(self)
 
     def pop(self):
-        super(Bilist, self).pop()
+        result = super(Bilist, self).pop()
         self._onchanged(self)
+        return result
 
     def reverse(self):
         super(Bilist, self).reverse()
         self._onchanged(self)
 
+    def sort(self, *args, **kwargs):
+        super(Bilist, self).sort(*args, **kwargs)
+        self._onchanged(self)
 
 class Biconfigs(Bidict):
     __file_pathes = {}
 
-
     def __init__(self,
                 path=None,
-                default_value={},
+                default_value=None,
                 parser=None,
                 storage=None,
                 async_write=True,
@@ -218,6 +241,7 @@ class Biconfigs(Bidict):
             config changed.
         '''
 
+        default_value = default_value or {}
         self.onchanged = onchanged or (lambda x: None)
         self.before_save = before_save or (lambda x: None)
         self.__pending_changes = False
@@ -237,9 +261,9 @@ class Biconfigs(Bidict):
         self.__path = path
         self.__abs_path = os.path.abspath(self.__path)
 
-        if not self.__parser in PARSERS.keys():
+        if self.__parser not in PARSERS.keys():
             raise InvalidPaserError('Invalid paser named "%s"' % self.__parser)
-        if not self.__storage in STORAGES.keys():
+        if self.__storage not in STORAGES.keys():
             raise InvalidStorageError('Invalid storage named "%s"' % self.__storage)
         if self.__storage == 'file':
             if self.__abs_path in Biconfigs.__file_pathes.keys():
@@ -291,12 +315,12 @@ class Biconfigs(Bidict):
         if self.__pending_changes:
             self.__sync_write()
 
-    def __biconfig_onchanged(self, obj):
+    def __biconfig_onchanged(self, _):
         if not self.__binded:
             return
         self.__pending_changes = True
         self.onchanged(self)
-        if self.before_save(self) == False:
+        if self.before_save(self) is False:
             return
         self.__async_write()
 

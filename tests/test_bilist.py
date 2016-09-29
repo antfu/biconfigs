@@ -22,18 +22,32 @@ def test_list():
 
     l.clear()
     assert len(l) == 0
+    # []
     l.append(123)
-    l.insert(0, 'insert-0')
+    # [123]
+    l.insert(0, 'inserted')
+    # ['inserted', 123]
     l.reverse()
+    # [123, 'inserted']
     l[1] = 'reversed'
+    # [123, 'reversed']
     l.remove(123)
-    l.pop()
+    # ['reversed']
+    assert l.pop() == 'reversed'
+    # []
     l.append('value')
+    # ['value']
+    l.extend([4,3,1])
+    # ['value', 4, 3, 1]
     del(l[0])
+    # [4, 3, 1]
+    l.sort()
+    # [1, 3, 4]
+    assert l[0] == 1
 
-    assert change_count == 9
+    assert change_count == 11
 
-    assert len(l) == 0
+    assert len(l) == 3
 
 changed_count = 0
 def test_with():
