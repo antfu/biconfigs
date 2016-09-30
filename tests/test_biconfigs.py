@@ -81,3 +81,13 @@ def test_invalid_parser_storages():
     with pytest.raises(biconfigs.AlreadyCreatedError):
         biconfigs.Biconfigs(path='.test.json')
         biconfigs.Biconfigs(path='.test.json')
+
+def test_io_expections():
+    with pytest.raises(biconfigs.InvaildFilePathError):
+        biconfigs.Biconfigs('/')
+
+    with pytest.raises(biconfigs.InvaildFilePathError):
+        biconfigs.Biconfigs('..')
+
+    with pytest.raises(biconfigs.FailedOpeningFileError):
+        biconfigs.Biconfigs(path='not_exits/file')

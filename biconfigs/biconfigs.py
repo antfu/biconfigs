@@ -8,9 +8,9 @@ from collections import MutableMapping, MutableSequence
 from threading import Thread
 from .parsers import PARSERS, EXTENSION_TO_PARSER
 from .storages import STORAGES
-from .exceptions import (InvalidPaserError,
-                         InvalidStorageError,
-                         AlreadyCreatedError)
+from .exceptions import (InvalidPaserError, InvalidStorageError,
+                         AlreadyCreatedError, InvaildFilePathError,
+                         FailedOpeningFileError)
 
 __randstr_chars = string.ascii_letters + string.digits
 
@@ -217,6 +217,8 @@ class Biconfigs(Bidict):
         self.__parser = parser or 'none'
         self.__path = path
         self.__abs_path = os.path.abspath(self.__path)
+        if os.path.isdir(self.__abs_path):
+            raise InvaildFilePathError('Invalid file path "%s"' % self.__path)
 
         if self.__parser not in PARSERS:
             raise InvalidPaserError('Invalid parser named "%s"' % self.__parser)
@@ -234,8 +236,12 @@ class Biconfigs(Bidict):
         self.__read = STORAGES[self.__storage]['read']
         self.__write = STORAGES[self.__storage]['write']
 
-        if self.__storage == 'file' and not os.path.exists(self.path):
-            self.__write(self.path, self.__dumps(default_value))
+        try:
+            if self.__storage == 'file' and not os.path.exists(self.path):
+                self.__write(self.path, self.__dumps(default_value))
+        except:
+            raise FailedOpeningFileError('Failed to open file "%s"' % self.__path)
+
 
         if self.__storage == 'memory':
             self.__write(self.path, self.__dumps(default_value))

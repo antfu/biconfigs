@@ -6,3 +6,9 @@ class InvalidStorageError(Exception):
 
 class AlreadyCreatedError(Exception):
     pass
+
+class InvaildFilePathError(Exception):
+    pass
+
+class FailedOpeningFileError(Exception):
+    pass
