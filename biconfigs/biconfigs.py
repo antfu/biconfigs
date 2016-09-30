@@ -2,7 +2,6 @@ from __future__ import print_function
 import os
 import random
 import string
-import codecs
 import warnings
 from collections import MutableMapping, MutableSequence
 from threading import Thread
@@ -90,7 +89,7 @@ class Bidict(dict):
             return self[key]
         except KeyError:
             value = Bilateralize(default, self._onsubchanged)
-            self[key] = default
+            self[key] = value
             return self[key]
 
 
