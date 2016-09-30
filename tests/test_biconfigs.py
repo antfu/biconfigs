@@ -1,6 +1,7 @@
 import biconfigs
 import time
 import pytest
+import datetime
 
 write_count = 0
 def test_callbacks_sync():
@@ -46,14 +47,16 @@ def test_callbacks_sync():
 
 class TestBlocking():
     def setup_class(self):
-        self.sleeptime = 0.05
+        self.writefinished = True
         self.writing = False
         self.blocking_config = biconfigs.Biconfigs(async_write=False)
         self.non_blocking_config = biconfigs.Biconfigs(async_write=True)
 
         def fake_write(*args):
             self.writing = True
-            time.sleep(self.sleeptime)
+            time.sleep(0.01)
+            while not self.writefinished:
+                time.sleep(0.01)
             self.writing = False
 
         self.blocking_config._Biconfigs__write = fake_write
@@ -65,9 +68,11 @@ class TestBlocking():
 
     def test_non_blocking(self):
         assert self.writing == False
+        self.writefinished = False
         self.non_blocking_config['item'] = 'value'
         assert self.writing == True
-        time.sleep(self.sleeptime*2)
+        self.writefinished = True
+        time.sleep(0.03)
         assert self.writing == False
 
 
@@ -79,8 +84,8 @@ def test_invalid_parser_storages():
         biconfigs.Biconfigs(storage='invalid_storage')
 
     with pytest.raises(biconfigs.AlreadyCreatedError):
-        biconfigs.Biconfigs(path='.test.json')
-        biconfigs.Biconfigs(path='.test.json')
+        a = biconfigs.Biconfigs(path='.test1.json')
+        b = biconfigs.Biconfigs(path='.test1.json')
 
 def test_io_expections():
     with pytest.raises(biconfigs.InvaildFilePathError):
@@ -89,5 +94,18 @@ def test_io_expections():
     with pytest.raises(biconfigs.InvaildFilePathError):
         biconfigs.Biconfigs('..')
 
-    with pytest.raises(biconfigs.FailedOpeningFileError):
+    with pytest.raises(biconfigs.OpenFileError):
         biconfigs.Biconfigs(path='not_exits/file')
+
+def test_loads_dumps_expections():
+    # Loads
+    with open('.test2.json', 'w') as f:
+        f.write('!!Invaild json file')
+    with pytest.raises(biconfigs.LoadError):
+        biconfigs.Biconfigs(path='.test2.json')
+
+    # Dumps
+    c = biconfigs.Biconfigs(path='.test3.json', async_write=False)
+    # class "datetime" is not JSON serializable
+    with pytest.raises(biconfigs.DumpError):
+        c[time.time()] = datetime.datetime.now()

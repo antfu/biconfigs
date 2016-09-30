@@ -8,9 +8,7 @@ from collections import MutableMapping, MutableSequence
 from threading import Thread
 from .parsers import PARSERS, EXTENSION_TO_PARSER
 from .storages import STORAGES
-from .exceptions import (InvalidPaserError, InvalidStorageError,
-                         AlreadyCreatedError, InvaildFilePathError,
-                         FailedOpeningFileError)
+from .exceptions import *
 
 __randstr_chars = string.ascii_letters + string.digits
 
@@ -238,15 +236,15 @@ class Biconfigs(Bidict):
 
         try:
             if self.__storage == 'file' and not os.path.exists(self.path):
-                self.__write(self.path, self.__dumps(default_value))
+                self.__write(self.path, self.__safe_dumps(default_value))
         except:
-            raise FailedOpeningFileError('Failed to open file "%s"' % self.__path)
+            raise OpenFileError('Failed to open file "%s"' % self.__path)
 
 
         if self.__storage == 'memory':
-            self.__write(self.path, self.__dumps(default_value))
+            self.__write(self.path, self.__safe_dumps(default_value))
 
-        super(Biconfigs,self).__init__(self.__loads(self.__read(self.path)),
+        super(Biconfigs,self).__init__(self.__safe_loads(),
                                        onchanged=self.__biconfig_onchanged)
 
     @property
@@ -271,7 +269,7 @@ class Biconfigs(Bidict):
     def __sync_write(self):
         self.__writing = True
         self.__pending_changes = False
-        self.__write(self.path, self.__dumps(self))
+        self.__write(self.path, self.__safe_dumps())
         self.__writing = False
 
         # If there are new changes made during writing
@@ -296,10 +294,29 @@ class Biconfigs(Bidict):
         if save_immediately:
             self.__biconfig_onchanged(self)
 
+    def __safe_loads(self):
+        try:
+            content = self.__read(self.path)
+        except Exception as ex: # pragma: no cover
+            raise OpenFileError(str(ex))
+        try:
+            loaded = self.__loads(content)
+        except Exception as ex:
+            raise LoadError(str(ex))
+        return loaded
+
+    def __safe_dumps(self, data=None):
+        data = data or self
+        try:
+            dumped = self.__dumps(data)
+        except Exception as ex:
+            raise DumpError(str(ex))
+        return dumped
+
     def reload(self):
         self._unbind()
         self.clear()
-        self.update(self.__loads(self.__read(self.path)))
+        self.update(self.__safe_loads())
         self._rebind(False)
 
     def release(self):

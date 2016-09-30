@@ -10,5 +10,11 @@ class AlreadyCreatedError(Exception):
 class InvaildFilePathError(Exception):
     pass
 
-class FailedOpeningFileError(Exception):
+class OpenFileError(Exception):
+    pass
+
+class LoadError(Exception):
+    pass
+
+class DumpError(Exception):
     pass
