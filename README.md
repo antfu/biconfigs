@@ -4,7 +4,7 @@
 [![Codacy grade](https://img.shields.io/codacy/grade/4bf188eecc374c76b5c6ddbe93315078.svg?style=flat-square)](https://www.codacy.com/app/anthonyfu117/biconfigs/dashboard)
 [![Python Version](https://img.shields.io/pypi/pyversions/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
 [![PyPI](https://img.shields.io/pypi/v/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
-[![PyPI](https://img.shields.io/pypi/status/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
+[![PyPI Status](https://img.shields.io/pypi/status/biconfigs.svg?style=flat-square)](https://pypi.python.org/pypi/biconfigs)
 [![License](https://img.shields.io/pypi/l/biconfigs.svg?style=flat-square)](https://github.com/antfu/biconfigs/blob/master/LICENSE)
 
 📄⇄🛠 Two way configurations mapping helper for Python.
@@ -113,6 +113,7 @@ configs.json:
 ```json
 {"debug": false, "item": "value"}
 ```
+
 **Available Parsers**
 
  - `json`: Compact JSON format
