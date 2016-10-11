@@ -16,7 +16,10 @@ PARSERS = {
 }
 
 EXTENSION_TO_PARSER = {
-    'json': 'pretty-json'
+    'json': 'pretty-json',
+    'cson': 'cson',
+    'yml': 'yaml',
+    'yaml': 'yaml'
 }
 
 DYNAMIC_PARSER_HELPER = {

@@ -34,6 +34,7 @@ Content of file `configs.json` after execution:
   }
 }
 ```
+\** Biconfigs also supports [CSON](#cson) and [YAML](#yaml) file formats.*
 
 ## Install
 ```sh
@@ -122,7 +123,7 @@ configs.json:
  - `yaml`: YAML format, refer to [YAML](#yaml)
 
 ## CSON
-Biconfigs support [CSON](https://github.com/bevry/cson) by [avakar/pycson](https://github.com/avakar/pycson)
+Biconfigs supports [CSON](https://github.com/bevry/cson) by [avakar/pycson](https://github.com/avakar/pycson)
 
 ```python
 from biconfigs import Biconfigs
@@ -149,7 +150,7 @@ Please check [avakar/pycson: The Language](https://github.com/avakar/pycson#the-
 
 ## YAML
 
-Biconfigs support [YAML](http://yaml.org/) by [PyYAML](http://pyyaml.org/)
+Biconfigs supports [YAML](http://yaml.org/) by [PyYAML](http://pyyaml.org/)
 
 ```python
 from biconfigs import Biconfigs

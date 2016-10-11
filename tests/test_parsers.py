@@ -16,7 +16,7 @@ def test_parser_before_import():
 def test_cson():
     from biconfigs import parser_cson
 
-    configs = Biconfigs('tests/.test.demo.cson', parser='cson', debug=True)
+    configs = Biconfigs('tests/.test.demo.cson')
     configs['options'] = {'debug': True,
                           'username': 'Anthony',
                           'list': [] }
@@ -27,8 +27,8 @@ def test_cson():
 
 def test_yaml():
     from biconfigs import parser_yaml
-    
-    configs = Biconfigs('tests/.test.demo.yml', parser='yaml', debug=True)
+
+    configs = Biconfigs('tests/.test.demo.yml')
     configs['options'] = {'debug': True,
                           'username': 'Anthony',
                           'list': [] }
