@@ -15,6 +15,7 @@ def randstr(length=10):
     return ''.join(random.sample(__randstr_chars, length))
 
 def Bilateralize(value, onchanged):
+    '''Warpping the dict/list to Bidict and Bilist'''
     if isinstance(value, MutableMapping) and not isinstance(value, Bidict):
         return Bidict(value, onchanged)
     elif isinstance(value, MutableSequence) and not isinstance(value, Bilist):
@@ -54,12 +55,14 @@ class Bidict(dict):
         self._onchanged(self)
 
     def __getattr__(self, key):
+        '''Give better accessibility as x.y.z for dict'''
         try:
             return self[key]
         except KeyError:
             raise AttributeError(r"'Bidict' object has no attribute '%s'" % key)
 
     def represent(self):
+        '''Get a pure dict copy'''
         r = {}
         for k, v in self.items():
             if isinstance(v, (Bidict, Bilist)):
@@ -222,48 +225,57 @@ class Biconfigs(Bidict):
         if path:
             path = path.strip()
             storage = storage or 'file'
+            # Detected parser by file extension if not specified.
             if not parser:
                 ext = path.rsplit('.')[-1].lower()
                 if ext in EXTENSION_TO_PARSER:
                     parser = EXTENSION_TO_PARSER[ext]
             parser = parser or 'pretty-json'
         else:
+            # If not path specified, use memory as storage
             path = randstr(20)
 
         self.__storage = storage or 'memory'
         self.__parser = parser or 'none'
         self.__path = path
         self.__abs_path = os.path.abspath(self.__path)
+
+        # Check the path validation
         if os.path.isdir(self.__abs_path):
             raise InvaildFilePathError('Invalid file path "%s"' % self.__path)
 
         if self.__parser not in PARSERS:
+            # Failed to load parser
             parser_helper = ''
             if self.__parser in DYNAMIC_PARSER_HELPER:
                 parser_helper = '\n' + DYNAMIC_PARSER_HELPER[self.__parser]
             raise InvalidPaserError('Invalid parser named "%s"%s' % (self.__parser,parser_helper))
         if self.__storage not in STORAGES:
+            # Failed to load storage
             raise InvalidStorageError('Invalid storage named "%s"' % self.__storage)
         if self.__storage == 'file':
+            # Only allow one Biconfigs for a file
             if self.__abs_path in Biconfigs.__file_pathes:
-                raise AlreadyCreatedError('Biconfigs for "%s" is already created.'
-                                          % self.__abs_path)
+                raise AlreadyCreatedError(('Biconfigs for "%s" is already created.\n' \
+                    + 'You may need to .release() the previous object to create a new one.')
+                    % self.__abs_path)
             else:
                 Biconfigs.__file_pathes[self.__abs_path] = self
 
+        # Load the parsers and storages
         self.__loads = PARSERS[self.__parser]['loads']
         self.__dumps = PARSERS[self.__parser]['dumps']
         self.__read = STORAGES[self.__storage]['read']
         self.__write = STORAGES[self.__storage]['write']
 
         try:
+            # Create and write default value if not file not exists
             if self.__storage == 'file' and not os.path.exists(self.path):
                 self.__write(self.path, self.__safe_dumps(default_value))
         except Exception as ex:
             if self.__debug: # pragma: no cover
                 raise
             raise OpenFileError('Failed to open file "%s": %s' % (self.__path, str(ex)))
-
 
         if self.__storage == 'memory':
             self.__write(self.path, self.__safe_dumps(default_value))
@@ -280,11 +292,14 @@ class Biconfigs(Bidict):
         return self.__path
 
     def __async_write(self):
+        '''Async non-blocking writing'''
         if self.__writing:
             return
         if not self.__use_async_writing:
+            # Configed using sync writing
             self.__sync_write()
         else:
+            # Create a new Thread for writing
             if not self.__async_writing_thread \
             or not self.__async_writing_thread.is_alive():
                 self.__async_writing_thread = Thread(target=self.__sync_write)
@@ -297,8 +312,7 @@ class Biconfigs(Bidict):
         self.__write(self.path, dumped)
         self.__writing = False
 
-        # If there are new changes made during writing
-        # Write again
+        # If there are new changes made during writing, write again
         if self.__pending_changes:
             self.__sync_write()
 
@@ -345,12 +359,14 @@ class Biconfigs(Bidict):
         return dumped
 
     def reload(self):
+        '''Reload data from binded file'''
         self._unbind()
         self.clear()
         self.update(self.__safe_loads())
         self._rebind(False)
 
     def release(self):
+        '''Release the binding to file and destory this object itself'''
         if self.__abs_path in Biconfigs.__file_pathes:
             del(Biconfigs.__file_pathes[self.__abs_path])
         self._unbind()

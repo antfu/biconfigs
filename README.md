@@ -34,7 +34,7 @@ Content of file `configs.json` after execution:
   }
 }
 ```
-\** Biconfigs also supports [CSON](#cson) and [YAML](#yaml) file formats.*
+\* *Biconfigs also supports [CSON](#cson) and [YAML](#yaml) file formats.*
 
 ## Install
 ```sh
@@ -48,7 +48,7 @@ Tested on Python `2.6`, `2.7`, `3.3`, `3.4`, `3.5`, `pypy`, `pypy3`
 
 ## Documentation
 ### When to save
-- Saving when: *Item create, item delete, list reorder, value change, `get_set`, etc.*
+- Saving when: *Item create, item delete, list reorder, value change, `setdefault`, etc.*
 ```python
 # All the following single statement will cause saving
 configs['item'] = 'value'
@@ -57,7 +57,7 @@ configs.options['list'] = []
 configs.options.list.append('example')
 configs.options['list'] = []
 configs.options.clear()
-value2 = configs.get_set('item2', 45)
+value2 = configs.setdefault('item2', 45)
 ```
 
 - Not saving when: *Item access, assignment but not changed, etc.*
