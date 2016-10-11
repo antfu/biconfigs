@@ -27,7 +27,10 @@ setup(name='biconfigs',
       license='MIT',
       long_description=convert('README.md','rst'),
       packages=['biconfigs'],
-
+      extras_require = {
+        'cson':  ["cson"]
+      },
+      
       # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
           #   3 - Alpha

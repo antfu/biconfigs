@@ -18,3 +18,6 @@ class LoadError(Exception):
 
 class DumpError(Exception):
     pass
+
+class DependenciesMissingError(Exception):
+    pass

@@ -118,7 +118,35 @@ configs.json:
 
  - `json`: Compact JSON format
  - `pretty-json`: Prettified JSON
+ - `cson`: CSON format, refer to [CSON](#cson)
  - *To be developed...*
+
+## CSON
+Biconfigs support [CSON](https://github.com/bevry/cson) by [avakar/pycson](https://github.com/avakar/pycson)
+
+```python
+from biconfigs import Biconfigs
+from biconfigs import cson_support
+
+configs = Biconfigs('configs.cson', parser='cson')
+# Then use biconfigs as you normally would...
+```
+
+**Extra requirements**
+
+Using CSON, you need to install extra requirement
+```sh
+pip install biconfigs[cson]
+```
+Or install `cson` manually:
+```sh
+pip install cson
+```
+
+**CSON problems**
+
+Please check [avakar/pycson: The Language](https://github.com/avakar/pycson#the-language)
+
 
 ## License
 MIT
