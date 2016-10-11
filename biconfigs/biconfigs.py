@@ -5,7 +5,7 @@ import string
 import warnings
 from collections import MutableMapping, MutableSequence
 from threading import Thread
-from .parsers import PARSERS, EXTENSION_TO_PARSER
+from .parsers import PARSERS, EXTENSION_TO_PARSER, DYNAMIC_PARSER_HELPER
 from .storages import STORAGES
 from .exceptions import *
 
@@ -58,6 +58,15 @@ class Bidict(dict):
             return self[key]
         except KeyError:
             raise AttributeError(r"'Bidict' object has no attribute '%s'" % key)
+
+    def represent(self):
+        r = {}
+        for k, v in self.items():
+            if isinstance(v, (Bidict, Bilist)):
+                r[k] = v.represent()
+            else:
+                r[k] = v
+        return r
 
     def pop(self, *args, **kwargs):
         result = super(Bidict, self).pop(*args, **kwargs)
@@ -125,6 +134,15 @@ class Bilist(list):
         self._onchanged = self._onchanged_back
         del(self._onchanged_back)
         self._onchanged(self)
+
+    def represent(self):
+        r = []
+        for v in self:
+            if isinstance(v, (Bidict, Bilist)):
+                r.append(v.represent())
+            else:
+                r.append(v)
+        return r
 
     def extend(self, new_list):
         for value in new_list:
@@ -220,7 +238,10 @@ class Biconfigs(Bidict):
             raise InvaildFilePathError('Invalid file path "%s"' % self.__path)
 
         if self.__parser not in PARSERS:
-            raise InvalidPaserError('Invalid parser named "%s"' % self.__parser)
+            parser_helper = ''
+            if self.__parser in DYNAMIC_PARSER_HELPER:
+                parser_helper = '\n' + DYNAMIC_PARSER_HELPER[self.__parser]
+            raise InvalidPaserError('Invalid parser named "%s"%s' % (self.__parser,parser_helper))
         if self.__storage not in STORAGES:
             raise InvalidStorageError('Invalid storage named "%s"' % self.__storage)
         if self.__storage == 'file':

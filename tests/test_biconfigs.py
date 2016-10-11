@@ -75,7 +75,6 @@ class TestBlocking():
         time.sleep(0.03)
         assert self.writing == False
 
-
 def test_invalid_parser_storages():
     with pytest.raises(biconfigs.InvalidPaserError):
         biconfigs.Biconfigs(parser='invalid_parser')
@@ -86,6 +85,7 @@ def test_invalid_parser_storages():
     with pytest.raises(biconfigs.AlreadyCreatedError):
         a = biconfigs.Biconfigs(path='tests/.test1.json')
         b = biconfigs.Biconfigs(path='tests/.test1.json')
+
 
 def test_io_expections():
     with pytest.raises(biconfigs.InvaildFilePathError):

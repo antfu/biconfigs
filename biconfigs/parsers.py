@@ -16,5 +16,10 @@ PARSERS = {
 }
 
 EXTENSION_TO_PARSER = {
-    'json': 'pretty-json',
+    'json': 'pretty-json'
+}
+
+DYNAMIC_PARSER_HELPER = {
+    'cson': 'You may need to add "from biconfigs import parser_cson"',
+    'yaml': 'You may need to add "from biconfigs import parser_yaml"',
 }

@@ -10,6 +10,5 @@ except ImportError: # pragma: no cover
 else:
     PARSERS['yaml'] = {
         'loads': yaml.load,
-        # A temporary solution for dump
-        'dumps': lambda x: yaml.dump(json.loads(json.dumps(x)))
+        'dumps': lambda x: yaml.dump(x.represent())
     }

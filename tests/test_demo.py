@@ -9,3 +9,4 @@ def test_demo():
                           'list': [] }
 
     configs.options.list.append('example')
+    configs.options.list.append({'nested': 3.1415})
