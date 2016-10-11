@@ -126,7 +126,7 @@ Biconfigs support [CSON](https://github.com/bevry/cson) by [avakar/pycson](https
 
 ```python
 from biconfigs import Biconfigs
-from biconfigs import support_cson
+from biconfigs import parser_cson
 
 configs = Biconfigs('configs.cson', parser='cson')
 # Then use biconfigs as you normally would...
@@ -153,7 +153,7 @@ Biconfigs support [YAML](http://yaml.org/) by [PyYAML](http://pyyaml.org/)
 
 ```python
 from biconfigs import Biconfigs
-from biconfigs import support_yaml
+from biconfigs import parser_yaml
 
 configs = Biconfigs('configs.yml', parser='yaml')
 # Then use biconfigs as you normally would...

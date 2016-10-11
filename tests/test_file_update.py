@@ -6,7 +6,7 @@ import json
 import os
 import codecs
 
-FILENAME = '.test_file_update.json'
+FILENAME = 'tests/.test_file_update.json'
 
 def readfile():
     with codecs.open(FILENAME,'r','utf-8') as f:

@@ -84,8 +84,8 @@ def test_invalid_parser_storages():
         biconfigs.Biconfigs(storage='invalid_storage')
 
     with pytest.raises(biconfigs.AlreadyCreatedError):
-        a = biconfigs.Biconfigs(path='.test1.json')
-        b = biconfigs.Biconfigs(path='.test1.json')
+        a = biconfigs.Biconfigs(path='tests/.test1.json')
+        b = biconfigs.Biconfigs(path='tests/.test1.json')
 
 def test_io_expections():
     with pytest.raises(biconfigs.InvaildFilePathError):
@@ -95,17 +95,17 @@ def test_io_expections():
         biconfigs.Biconfigs('..')
 
     with pytest.raises(biconfigs.OpenFileError):
-        biconfigs.Biconfigs(path='not_exits/file')
+        biconfigs.Biconfigs(path='tests/not_exits/file')
 
 def test_loads_dumps_expections():
     # Loads
-    with open('.test2.json', 'w') as f:
+    with open('tests/.test2.json', 'w') as f:
         f.write('!!Invaild json file')
     with pytest.raises(biconfigs.LoadError):
-        biconfigs.Biconfigs(path='.test2.json')
+        biconfigs.Biconfigs(path='tests/.test2.json')
 
     # Dumps
-    c = biconfigs.Biconfigs(path='.test3.json', async_write=False)
+    c = biconfigs.Biconfigs(path='tests/.test3.json', async_write=False)
     # class "datetime" is not JSON serializable
     with pytest.raises(biconfigs.DumpError):
         c[time.time()] = datetime.datetime.now()
