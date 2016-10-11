@@ -119,14 +119,14 @@ configs.json:
  - `json`: Compact JSON format
  - `pretty-json`: Prettified JSON
  - `cson`: CSON format, refer to [CSON](#cson)
- - *To be developed...*
+ - `yaml`: YAML format, refer to [YAML](#yaml)
 
 ## CSON
 Biconfigs support [CSON](https://github.com/bevry/cson) by [avakar/pycson](https://github.com/avakar/pycson)
 
 ```python
 from biconfigs import Biconfigs
-from biconfigs import cson_support
+from biconfigs import support_cson
 
 configs = Biconfigs('configs.cson', parser='cson')
 # Then use biconfigs as you normally would...
@@ -134,7 +134,7 @@ configs = Biconfigs('configs.cson', parser='cson')
 
 **Extra requirements**
 
-Using CSON, you need to install extra requirement
+To use CSON, you need to install extra requirement
 ```sh
 pip install biconfigs[cson]
 ```
@@ -147,6 +147,28 @@ pip install cson
 
 Please check [avakar/pycson: The Language](https://github.com/avakar/pycson#the-language)
 
+## YAML
+
+Biconfigs support [YAML](http://yaml.org/) by [PyYAML](http://pyyaml.org/)
+
+```python
+from biconfigs import Biconfigs
+from biconfigs import support_yaml
+
+configs = Biconfigs('configs.yml', parser='yaml')
+# Then use biconfigs as you normally would...
+```
+
+**Extra requirements**
+
+To use YAML, you need to install extra requirement
+```sh
+pip install biconfigs[yaml]
+```
+Or install `PyYAML` manually:
+```sh
+pip install PyYAML
+```
 
 ## License
 MIT

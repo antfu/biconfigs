@@ -28,9 +28,11 @@ setup(name='biconfigs',
       long_description=convert('README.md','rst'),
       packages=['biconfigs'],
       extras_require = {
+        'all':  ["cson", "PyYAML"],
+        'yaml':  ["PyYAML"],
         'cson':  ["cson"]
       },
-      
+
       # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
           #   3 - Alpha

@@ -93,3 +93,4 @@ ENV/
 *.ipynb
 *.bat
 *.sh
+.test*

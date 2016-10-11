@@ -174,7 +174,8 @@ class Biconfigs(Bidict):
                 storage=None,
                 async_write=True,
                 onchanged=None,
-                before_save=None):
+                before_save=None,
+                debug=False):
         '''Constructs a <Biconfigs> instance
 
         :param path: The path to linked file
@@ -193,6 +194,7 @@ class Biconfigs(Bidict):
         default_value = default_value or {}
         self.onchanged = onchanged or (lambda x: None)
         self.before_save = before_save or (lambda x: None)
+        self.__debug = debug
         self.__pending_changes = False
         self.__binded = True
         self.__writing = False
@@ -236,8 +238,10 @@ class Biconfigs(Bidict):
         try:
             if self.__storage == 'file' and not os.path.exists(self.path):
                 self.__write(self.path, self.__safe_dumps(default_value))
-        except:
-            raise OpenFileError('Failed to open file "%s"' % self.__path)
+        except Exception as ex:
+            if self.__debug: # pragma: no cover
+                raise
+            raise OpenFileError('Failed to open file "%s": %s' % (self.__path, str(ex)))
 
 
         if self.__storage == 'memory':
@@ -268,7 +272,8 @@ class Biconfigs(Bidict):
     def __sync_write(self):
         self.__writing = True
         self.__pending_changes = False
-        self.__write(self.path, self.__safe_dumps())
+        dumped = self.__safe_dumps()
+        self.__write(self.path, dumped)
         self.__writing = False
 
         # If there are new changes made during writing
@@ -297,10 +302,14 @@ class Biconfigs(Bidict):
         try:
             content = self.__read(self.path)
         except Exception as ex: # pragma: no cover
+            if self.__debug:
+                raise
             raise OpenFileError(str(ex))
         try:
             loaded = self.__loads(content)
         except Exception as ex:
+            if self.__debug: # pragma: no cover
+                raise
             raise LoadError(str(ex))
         return loaded
 
@@ -309,6 +318,8 @@ class Biconfigs(Bidict):
         try:
             dumped = self.__dumps(data)
         except Exception as ex:
+            if self.__debug: # pragma: no cover
+                raise
             raise DumpError(str(ex))
         return dumped
 

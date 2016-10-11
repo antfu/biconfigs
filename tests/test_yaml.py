@@ -1,7 +1,7 @@
-from biconfigs import support_cson, Biconfigs
+from biconfigs import support_yaml, Biconfigs
 
-def test_cson():
-    configs = Biconfigs('.test.demo.cson', parser='cson', debug=True)
+def test_yaml():
+    configs = Biconfigs('.test.demo.yml', parser='yaml', debug=True)
     configs['options'] = {'debug': True,
                           'username': 'Anthony',
                           'list': [] }
